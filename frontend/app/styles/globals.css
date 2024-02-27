@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .stats {
+        @apply bg-indigo-900 text-white p-4 flex-1 rounded-xl border-2 border-purple-800;
+    }
+
+    .stats-container {
+        @apply bg-indigo-900 p-5 rounded-lg border border-purple-800;
+    }
+
+    .countdown {
+        @apply p-8 text-5xl text-center text-white rounded-lg lg:min-w-[150px] bg-background;
+    }
+
+    .countdown-label {
+        @apply text-center text-white uppercase text-sm pt-4
+    }
+
+    .bg-background {
+        @apply bg-gradient-to-b from-indigo-900 via-indigo-800 to-violet-700
+    }
+
+    .bg-winner {
+        @apply bg-gradient-to-b from-emerald-900 via-green-700 to-teal-500
+    }
+    
+    .bg-buy {
+        @apply bg-gradient-to-r from-emerald-800 to-teal-700
+    }
+}
