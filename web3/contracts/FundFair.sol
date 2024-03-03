@@ -10,6 +10,27 @@ import "@thirdweb-dev/contracts/extension/ContractMetadata.sol";
 
 
 contract FundFair is ContractMetadata {
+    enum FundingModel {Fixed, Flexible}
+
+    event CampaignCreated(
+        uint256 indexed campaignId,
+        address indexed owner,
+        string title,
+        uint256 target
+    );
+
+    event CampaignFunded(
+        uint256 indexed campaignId,
+        address indexed donor,
+        uint256 amount
+    );
+
+    event CampaignClosed(
+        uint256 indexed campaignId,
+        address indexed owner,
+        bool isSuccessful
+    );
+
     struct Campaign {
         address owner;
         string title;
@@ -20,10 +41,12 @@ contract FundFair is ContractMetadata {
         string image;
         address[] donators;
         uint256[] donations;
+        bool isFundingGoalReached;
+        bool isCampaignClosed;
+        FundingModel fundingModel;
     }
 
     mapping(uint256 => Campaign) public campaigns;
-
     uint256 public numberOfCampaigns = 0;
     address public deployer;
  
@@ -37,13 +60,12 @@ contract FundFair is ContractMetadata {
         string memory _description,
         uint256 _target,
         uint256 _deadline,
-        string memory _image
+        string memory _image,
+        string memory _fundingModel
     ) public returns (uint256) {
+        require(_deadline > block.timestamp, "Deadline should be in the future");
 
-        // create a campaign at current index first then edit the values in it
         Campaign storage campaign = campaigns[numberOfCampaigns];
-        require(campaign.deadline < block.timestamp, "deadline should be a future date");
-
         campaign.owner = _owner;
         campaign.title = _title;
         campaign.description = _description;
@@ -52,25 +74,57 @@ contract FundFair is ContractMetadata {
         campaign.amountRaised = 0;
         campaign.image = _image;
 
+        if (keccak256(abi.encodePacked(_fundingModel)) == keccak256(abi.encodePacked("Fixed"))) {
+            campaign.fundingModel = FundingModel.Fixed;
+        } else if (keccak256(abi.encodePacked(_fundingModel)) == keccak256(abi.encodePacked("Flexible"))) {
+            campaign.fundingModel = FundingModel.Flexible;
+        } else {
+            revert("Invalid funding model");
+        }
+
+        emit CampaignCreated(numberOfCampaigns, _owner, _title, _target);
+
         numberOfCampaigns++;
 
         return numberOfCampaigns - 1;
     }
 
     function fundCampaign(uint256 _id) public payable {
-        uint256 amount = msg.value;
-
         Campaign storage campaign = campaigns[_id];
+        require(!campaign.isCampaignClosed, "Campaign is closed");
+        
+        uint256 amount = msg.value;
         campaign.donators.push(msg.sender);
         campaign.donations.push(amount);
+        campaign.amountRaised = campaign.amountRaised + amount;
 
-        (bool sent,) = payable(campaign.owner).call{value: amount}("");
-        require(sent, "error funding campaign");
+        emit CampaignFunded(_id, msg.sender, amount);
 
-        if (sent) {
-            campaign.amountRaised = campaign.amountRaised + amount;
+        if (campaign.amountRaised >= campaign.target) {
+            campaign.isFundingGoalReached = true;
         }
 
+        if (campaign.fundingModel == FundingModel.Fixed) {
+            require(!campaign.isCampaignClosed, "Campaign is closed");
+            campaign.isCampaignClosed = true;
+        }
+
+        if (campaign.fundingModel == FundingModel.Flexible) {
+            require(!campaign.isCampaignClosed, "Campaign is closed");
+        }
+    }
+
+    function closeCampaign(uint256 _id) public {
+        Campaign storage campaign = campaigns[_id];
+        require(campaign.owner == msg.sender, "Only campaign owner can close the campaign");
+        require(campaign.deadline <= block.timestamp, "Campaign deadline not reached");
+        campaign.isCampaignClosed = true;
+
+        if (campaign.amountRaised >= campaign.target) {
+            emit CampaignClosed(_id, msg.sender, true);
+        } else {
+            emit CampaignClosed(_id, msg.sender, false);
+        }
     }
 
     function getFunders(uint256 _id) public view returns(address[] memory, uint256[] memory) {

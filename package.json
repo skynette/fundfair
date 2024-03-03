@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@thirdweb-dev/react": "^4.4.11",
+    "@thirdweb-dev/sdk": "^4.0.38",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/node": "20.1.0",
     "@types/react": "18.2.6",
@@ -22,7 +24,6 @@
     "eslint-config-next": "13.4.1",
     "ethers": "^5.7.2",
     "lucide-react": "^0.268.0",
-    "moralis": "^2.23.2",
     "next": "13.4.1",
     "next-themes": "^0.2.1",
     "pino-pretty": "^10.3.1",
