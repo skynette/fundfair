@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-import "@thirdweb-dev/contracts/extension/ContractMetadata.sol";
 
 
 /// @title Smart Contract for FundFair v1.0
@@ -9,7 +8,7 @@ import "@thirdweb-dev/contracts/extension/ContractMetadata.sol";
 /// @dev Explain to a developer any extra details
 
 
-contract FundFair is ContractMetadata {
+contract FundFair {
     enum FundingModel {Fixed, Flexible}
 
     event CampaignCreated(
@@ -142,7 +141,27 @@ contract FundFair is ContractMetadata {
         return allCampaigns;
     }
 
-    function _canSetContractURI() internal view virtual override returns (bool){
-        return msg.sender == deployer;
+    /// @notice Allows the campaign owner to withdraw funds after the campaign has ended.
+    /// @param _campaignId The ID of the campaign from which to withdraw funds.
+    function withdraw(uint256 _campaignId) public {
+        Campaign storage campaign = campaigns[_campaignId];
+
+        // Check that the caller is the campaign owner
+        require(msg.sender == campaign.owner, "Only the campaign owner can withdraw funds");
+
+        // Check that the campaign is closed
+        require(campaign.isCampaignClosed, "Cannot withdraw funds before the campaign is closed");
+
+        // Check if the funding model is Flexible or if the goal was reached for Fixed model
+        if(campaign.fundingModel == FundingModel.Flexible || (campaign.fundingModel == FundingModel.Fixed && campaign.isFundingGoalReached)) {
+            uint256 amountToWithdraw = campaign.amountRaised;
+            require(amountToWithdraw > 0, "No funds to withdraw");
+            campaign.amountRaised = 0;
+
+            payable(campaign.owner).transfer(amountToWithdraw);
+        } else {
+            revert("Funds cannot be withdrawn");
+        }
     }
+
 }
