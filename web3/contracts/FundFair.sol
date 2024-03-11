@@ -10,6 +10,24 @@ pragma solidity ^0.8.9;
 
 contract FundFair {
     enum FundingModel {Fixed, Flexible}
+    enum CauseCategory {
+        HealthAndMedicine,
+        EnvironmentAndWildlife,
+        EducationAndResearch,
+        PovertyAndHumanServices,
+        ArtsCultureAndHumanities,
+        ChildrenAndYouth,
+        DisasterReliefAndEmergencyResponse,
+        AnimalWelfare,
+        CommunityAndCivicProjects,
+        TechnologyAndInnovation,
+        VeteransAndMilitaryFamilies,
+        HumanRightsAndSocialJustice,
+        InternationalAidAndDevelopment,
+        FaithBasedAndReligious,
+        SportsAndRecreation,
+        MentalHealthAndWellness
+    }
 
     event CampaignCreated(
         uint256 indexed campaignId,
@@ -43,6 +61,7 @@ contract FundFair {
         bool isFundingGoalReached;
         bool isCampaignClosed;
         FundingModel fundingModel;
+        CauseCategory category;
     }
 
     mapping(uint256 => Campaign) public campaigns;
@@ -60,7 +79,8 @@ contract FundFair {
         uint256 _target,
         uint256 _deadline,
         string memory _image,
-        string memory _fundingModel
+        string memory _fundingModel,
+        CauseCategory _category
     ) public returns (uint256) {
         require(_deadline > block.timestamp, "Deadline should be in the future");
 
@@ -72,6 +92,7 @@ contract FundFair {
         campaign.deadline = _deadline;
         campaign.amountRaised = 0;
         campaign.image = _image;
+        campaign.category = _category;
 
         if (keccak256(abi.encodePacked(_fundingModel)) == keccak256(abi.encodePacked("Fixed"))) {
             campaign.fundingModel = FundingModel.Fixed;
