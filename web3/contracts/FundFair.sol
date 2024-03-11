@@ -4,8 +4,8 @@ pragma solidity ^0.8.9;
 
 /// @title Smart Contract for FundFair v1.0
 /// @author Joshua Hassan
-/// @notice Explain to an end user what this does
-/// @dev Explain to a developer any extra details
+/// @notice This smart contract is designed for creating and managing crowdfunding campaigns.
+/// @dev The contract includes functions for creating, funding, closing campaigns, retrieving campaign and funder details, and withdrawing funds.
 
 
 contract FundFair {
@@ -88,6 +88,10 @@ contract FundFair {
         return numberOfCampaigns - 1;
     }
 
+    
+    /// @notice Allows a user to fund a specific campaign.
+    /// @param _id The ID of the campaign to fund.
+    /// @dev The value sent with the transaction (msg.value) is the amount contributed.
     function fundCampaign(uint256 _id) public payable {
         Campaign storage campaign = campaigns[_id];
         require(!campaign.isCampaignClosed, "Campaign is closed");
@@ -113,6 +117,9 @@ contract FundFair {
         }
     }
 
+    /// @notice Closes a specific campaign.
+    /// @param _id The ID of the campaign to close.
+    /// @dev Can only be called by the campaign owner and after the deadline has passed.
     function closeCampaign(uint256 _id) public {
         Campaign storage campaign = campaigns[_id];
         require(campaign.owner == msg.sender, "Only campaign owner can close the campaign");
@@ -126,10 +133,15 @@ contract FundFair {
         }
     }
 
+    /// @notice Retrieves the addresses and donation amounts of all funders of a specific campaign.
+    /// @param _id The ID of the campaign.
+    /// @return Two arrays containing the addresses of the funders and the respective amounts they donated.
     function getFunders(uint256 _id) public view returns(address[] memory, uint256[] memory) {
         return (campaigns[_id].donators, campaigns[_id].donations);
     }
 
+    /// @notice Returns all campaigns created.
+    /// @return An array of all created campaigns.
     function getCampaigns() public view returns (Campaign[] memory) {
         Campaign[] memory allCampaigns = new Campaign[](numberOfCampaigns);
 
@@ -146,10 +158,7 @@ contract FundFair {
     function withdraw(uint256 _campaignId) public {
         Campaign storage campaign = campaigns[_campaignId];
 
-        // Check that the caller is the campaign owner
         require(msg.sender == campaign.owner, "Only the campaign owner can withdraw funds");
-
-        // Check that the campaign is closed
         require(campaign.isCampaignClosed, "Cannot withdraw funds before the campaign is closed");
 
         // Check if the funding model is Flexible or if the goal was reached for Fixed model
