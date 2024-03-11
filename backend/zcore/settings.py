@@ -41,6 +41,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # third party apps
+	'rest_framework',
+	'drf_spectacular',
+
+    # local apps
     'fundfair',
 ]
 
@@ -59,7 +65,7 @@ ROOT_URLCONF = 'zcore.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -123,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Lagos'
 
 USE_I18N = True
 
@@ -146,3 +152,25 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS') == "True"
 
 # Custom user model
 AUTH_USER_MODEL = 'fundfair.CustomUser'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+REST_FRAMEWORK = {	
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',    
+	'NON_FIELD_ERRORS_KEY': 'error',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'FundFair API',
+    'DESCRIPTION': 'Support without borders',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
+{
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}

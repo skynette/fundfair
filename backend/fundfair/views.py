@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import generics
 
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+
 from .serializers import EmailVerificationSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletVerificationSerializer
 
 
@@ -13,6 +15,11 @@ User = get_user_model()
 class UserRegistrationView(generics.GenericAPIView):
     serializer_class = UserRegistrationSerializer
 
+    @extend_schema(
+        request=UserRegistrationSerializer,
+        responses={201: UserRegistrationSerializer},
+        description="Register a new user account",
+    )
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
@@ -33,6 +40,14 @@ user_registration_view = UserRegistrationView.as_view()
 class EmailVerificationView(generics.GenericAPIView):
     serializer_class = EmailVerificationSerializer
 
+    @extend_schema(
+        request=EmailVerificationSerializer,
+        responses={
+            200: OpenApiResponse(description="Email verified successfully"),
+            400: OpenApiResponse(description="Invalid request with details")
+        },
+        description="Verify a user's email address",
+    )
     def post(self, request):
         serializer = EmailVerificationSerializer(data=request.data)
         if serializer.is_valid():
@@ -47,6 +62,14 @@ email_verification_view = EmailVerificationView.as_view()
 class WalletVerificationView(generics.GenericAPIView):
     serializer_class = WalletVerificationSerializer
 
+    @extend_schema(
+        request=WalletVerificationSerializer,
+        responses= {
+            200: OpenApiResponse(description="Wallet associated with an existing user"),
+            404: OpenApiResponse(description="No account associated with this wallet. Please create an account.")
+        },
+        description="Verify a user's wallet address",
+    )
     def post(self, request):
         serializer = WalletVerificationSerializer(data=request.data)
         if serializer.is_valid():
@@ -65,6 +88,11 @@ wallet_verification_view = WalletVerificationView.as_view()
 class UserProfileView(generics.RetrieveAPIView):
     serializer_class = UserProfileSerializer
 
+    @extend_schema(
+        request=WalletVerificationSerializer,
+        responses={200: UserProfileSerializer},
+        description="Retrieve a user's profile information",
+    )
     def post(self, request):
         wallet_serializer = WalletVerificationSerializer(data=request.data)
         if wallet_serializer.is_valid():
