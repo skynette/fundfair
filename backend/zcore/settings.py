@@ -152,6 +152,7 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS') == "True"
 
 # Custom user model
 AUTH_USER_MODEL = 'fundfair.CustomUser'
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
