@@ -161,14 +161,28 @@ contract FundFair {
         return (campaigns[_id].donators, campaigns[_id].donations);
     }
 
-    /// @notice Returns all campaigns created.
-    /// @return An array of all created campaigns.
+    /// @notice Returns all campaigns created in a structured format.
+    /// @return An array of all created campaigns with detailed attributes.
     function getCampaigns() public view returns (Campaign[] memory) {
         Campaign[] memory allCampaigns = new Campaign[](numberOfCampaigns);
 
-        for(uint i = 0; i < numberOfCampaigns; i++){
-            Campaign storage item = campaigns[i];
-            allCampaigns[i] = item;
+        for (uint i = 0; i < numberOfCampaigns; i++) {
+            Campaign storage currentCampaign = campaigns[i];
+            allCampaigns[i] = Campaign({
+                owner: currentCampaign.owner,
+                title: currentCampaign.title,
+                description: currentCampaign.description,
+                target: currentCampaign.target,
+                deadline: currentCampaign.deadline,
+                amountRaised: currentCampaign.amountRaised,
+                image: currentCampaign.image,
+                donators: currentCampaign.donators,
+                donations: currentCampaign.donations,
+                isFundingGoalReached: currentCampaign.isFundingGoalReached,
+                isCampaignClosed: currentCampaign.isCampaignClosed,
+                fundingModel: currentCampaign.fundingModel,
+                category: currentCampaign.category
+            });
         }
 
         return allCampaigns;

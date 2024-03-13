@@ -17,6 +17,9 @@ import {
 import Navbar from './components/layout/navbar';
 import { Toaster } from './components/ui/sonner';
 
+// import chains from thirdweb
+import { OpSepoliaTestnet } from "@thirdweb-dev/chains";
+
 
 const epilogue = Epilogue({
     subsets: ['latin']
@@ -31,23 +34,13 @@ export default function RootLayout({
         <html lang="en" className={cn('', epilogue.className)}>
             <body className=''>
                 <ThirdwebProvider
-                    activeChain="mumbai"
+                    activeChain={ OpSepoliaTestnet }
                     clientId={process.env.NEXT_THIRDWEB_CLIENT_ID}
                     locale={en()}
                     supportedWallets={[
                         metamaskWallet({ recommended: true }),
                         coinbaseWallet({ recommended: true }),
                         walletConnect(),
-                        embeddedWallet({
-                            auth: {
-                                options: [
-                                    "google",
-                                    "apple",
-                                    "facebook",
-                                    "email",
-                                ],
-                            },
-                        }),
                         zerionWallet(),
                         rainbowWallet(),
                         phantomWallet(),
