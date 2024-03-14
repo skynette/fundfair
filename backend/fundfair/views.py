@@ -8,7 +8,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from .serializers import EmailVerificationSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletVerificationSerializer
+from .serializers import EmailVerificationSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
 
 User = get_user_model()
 
@@ -67,30 +67,39 @@ class EmailVerificationView(generics.GenericAPIView):
 email_verification_view = EmailVerificationView.as_view()
 
 
-class WalletVerificationView(generics.GenericAPIView):
-    serializer_class = WalletVerificationSerializer
+class WalletLinkingView(generics.GenericAPIView):
+    serializer_class = WalletLinkingSerializer
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        request=WalletVerificationSerializer,
-        responses= {
-            200: OpenApiResponse(description="Wallet associated with an existing user"),
-            404: OpenApiResponse(description="No account associated with this wallet. Please create an account.")
+        request=WalletLinkingSerializer,
+        responses={
+            200: OpenApiResponse(description="Wallet successfully linked to the account."),
+            400: OpenApiResponse(description="Invalid data."),
+            409: OpenApiResponse(description="This wallet is already linked to another account."),
         },
-        description="Verify a user's wallet address",
+        description="Link a user's wallet address to their account",
     )
     def post(self, request):
-        serializer = WalletVerificationSerializer(data=request.data)
+        serializer = WalletLinkingSerializer(data=request.data)
         if serializer.is_valid():
             wallet_address = serializer.validated_data['wallet_address']
-            try:
-                user = User.objects.get(wallet_address=wallet_address)
-                return Response({"message": "Wallet associated with an existing user.", "username": user.username, "email": user.email}, status=status.HTTP_200_OK)
-            except User.DoesNotExist:
-                return Response({"message": "No account associated with this wallet. Please create an account."}, status=status.HTTP_404_NOT_FOUND)
+            user = request.user 
+
+            if user.wallet_address:
+                return Response({"message": "An existing wallet is already linked to this account."}, status=status.HTTP_409_CONFLICT)
+
+            if User.objects.filter(wallet_address=wallet_address).exists():
+                return Response({"message": "This wallet is already linked to another account."}, status=status.HTTP_409_CONFLICT)
+
+            user.wallet_address = wallet_address
+            user.save()
+            return Response({"message": "Wallet successfully linked to the account.", "wallet_address": wallet_address}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-wallet_verification_view = WalletVerificationView.as_view()
+
+wallet_linking_view = WalletLinkingView.as_view()
 
 
 class UserProfileView(generics.RetrieveAPIView):
@@ -98,12 +107,12 @@ class UserProfileView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        request=WalletVerificationSerializer,
+        request=WalletLinkingSerializer,
         responses={200: UserProfileSerializer},
         description="Retrieve a user's profile information",
     )
     def post(self, request):
-        wallet_serializer = WalletVerificationSerializer(data=request.data)
+        wallet_serializer = WalletLinkingSerializer(data=request.data)
         if wallet_serializer.is_valid():
             wallet_address = wallet_serializer.validated_data['wallet_address']
             try:

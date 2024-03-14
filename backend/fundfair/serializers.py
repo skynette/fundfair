@@ -58,7 +58,7 @@ class EmailVerificationSerializer(serializers.Serializer):
 
 
 
-class WalletVerificationSerializer(serializers.Serializer):
+class WalletLinkingSerializer(serializers.Serializer):
     wallet_address = serializers.CharField(max_length=42)
 
     def validate_wallet_address(self, value):
