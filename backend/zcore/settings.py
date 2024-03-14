@@ -156,6 +156,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://fundfair.vercel.app/"
+    "https://fundfair.vercel.app"
 ]
 
 REST_FRAMEWORK = {	
