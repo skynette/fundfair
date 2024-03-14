@@ -31,6 +31,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG') == "True"
 
 ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ['https://fundfair.up.railway.app', 'https://www.fundfair.up.railway.app']
+# CSRF_COOKIE_DOMAIN = '.up.railway.app'
 
 
 # Application definition
