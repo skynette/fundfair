@@ -1,13 +1,14 @@
 from django.contrib.auth import get_user_model
 
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import generics
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from .serializers import EmailVerificationSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletVerificationSerializer
-
 
 User = get_user_model()
 
@@ -21,14 +22,21 @@ class UserRegistrationView(generics.GenericAPIView):
         description="Register a new user account",
     )
     def post(self, request):
-        serializer = UserRegistrationSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-        
+            refresh = TokenObtainPairSerializer.get_token(user)
+            
             return Response({
-                "message": "User registered successfully",
-                "username": user.username,
-                "wallet_address": user.wallet_address
+                'user': {
+                    'username': user.username,
+                    'email': user.email,
+                },
+                'token': {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                },
+                'message': 'User registered successfully',
             }, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -87,6 +95,7 @@ wallet_verification_view = WalletVerificationView.as_view()
 
 class UserProfileView(generics.RetrieveAPIView):
     serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         request=WalletVerificationSerializer,

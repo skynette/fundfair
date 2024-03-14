@@ -7,25 +7,18 @@ User = get_user_model()
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
-    wallet_address = serializers.CharField(required=False)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'wallet_address')
+        fields = ('username', 'email', 'password')
         extra_kwargs = {'password': {'write_only': True}}
-
-    def validate_wallet_address(self, value):
-        """Validate Ethereum address or ENS."""
-        
-        if not (Web3.isAddress(value) or value.endswith('.eth')):
-            raise serializers.ValidationError("This is not a valid Ethereum address or ENS name.")
-        return value
 
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            is_active=False
         )
         # TODO: Send OTP for email verification
         

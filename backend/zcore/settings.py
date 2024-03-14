@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 
 load_dotenv()
@@ -43,8 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # third party apps
-	'rest_framework',
-	'drf_spectacular',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'drf_spectacular',
 
     # local apps
     'fundfair',
@@ -160,9 +162,12 @@ CORS_ALLOWED_ORIGINS = [
     "https://fundfair.vercel.app"
 ]
 
-REST_FRAMEWORK = {	
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',    
-	'NON_FIELD_ERRORS_KEY': 'error',
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'NON_FIELD_ERRORS_KEY': 'error',
 }
 
 SPECTACULAR_SETTINGS = {
@@ -176,4 +181,10 @@ SPECTACULAR_SETTINGS = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
+}
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
 }
