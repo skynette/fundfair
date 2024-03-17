@@ -1,21 +1,25 @@
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { ArrowRight, GoogleLogo } from '@phosphor-icons/react';
+import { ArrowRight } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '../ui/button';
-import { Separator } from '../ui/separator';
 import FormikControl from '../form-controls/FormikControl';
+import { useMutation } from '@tanstack/react-query';
+import SignupResponse from '@/lib/network/auth/AuthResponse';
+import SignupRequest from '@/lib/network/auth/SignupRequest';
+import { signup } from '@/lib/api/auth/endpoint';
+import { toast } from 'sonner';
+import { AxiosError } from 'axios';
 
 interface SignupField {
-    fullname: string;
+    username: string;
     email: string;
     password: string;
     confirmPassword: string;
 }
 
 const validationSchema = Yup.object().shape({
-    fullname: Yup.string().required('Fullname is required').trim()
-        .matches(/^[a-zA-Z]+(\s[a-zA-Z]+)+$/, 'Invalid full name format. Please enter first name and last name.'),
+    username: Yup.string().required('User name is required').trim(),
     email: Yup.string().required('Email is required').email('Provide a valid email address'),
     password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
     confirmPassword: Yup.string().required('Confirm password is required').oneOf([Yup.ref('password'), ''], 'Passwords must match')
@@ -23,12 +27,19 @@ const validationSchema = Yup.object().shape({
 
 function SignupForm() {
     const router = useRouter();
-    // const { isPending, isSuccess, mutate } = useMutation<SignupResponse, Error, SignupRequest>({
-    //     mutationFn: (request: SignupRequest) => signup(request),
-    // });
+    const { data, isPending, isSuccess, isError, error, mutate } = useMutation<SignupResponse, AxiosError, SignupRequest>({
+        mutationFn: (request: SignupRequest) => signup(request),
+        onSuccess(data, variables, context) {
+            router.push('/auth/email-verification');
+        },
+        onError(error, variables, context) {
+            // @ts-ignore
+            Object.entries(error.response?.data).forEach(err => toast.error(err[1][0]));
+        },
+    });
 
     const initialValues: SignupField = {
-        fullname: '',
+        username: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -39,19 +50,19 @@ function SignupForm() {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={(field) => {
-                // mutate({
-                //     fullname: field.fullname,
-                //     email: field.email,
-                //     password: field.password
-                // });
+                mutate({
+                    username: field.username,
+                    email: field.email,
+                    password: field.password
+                });
             }}>
             {
                 () => (
-                    <Form className='p-8'>
+                    <Form className='px-4 py-8'>
                         <div className='flex flex-col space-y-3'>
                             <FormikControl
-                                label='Full name'
-                                name='fullname'
+                                label='User name'
+                                name='username'
                                 type='text'
                                 control='input'
                             />
@@ -76,22 +87,10 @@ function SignupForm() {
                                 type='password'
                                 control='input'
                             />
-                            <Button variant='link' className='p-0 -translate-y-4 text-xs text-blue-500 self-end'>Forget password?</Button>
                         </div>
 
-                        <Button type='submit'
+                        <Button type='submit' isLoading={isPending} disabled={isPending}
                             className='mt-6 uppercase w-full font-bold py-6'>sign up <ArrowRight className='ml-2' weight='bold' size={20} /></Button>
-
-                        <div className='relative w-full max-w-full mt-4 flex items-center justify-between'>
-                            <Separator className='w-[40%]' />
-                            <p className='text-gray-600'>or</p>
-                            <Separator className='w-[40%]' />
-                        </div>
-
-                        <Button variant='outline' className='w-full rounded-md mt-4'>
-                            <GoogleLogo weight='bold' size={24} className='mr-3' />
-                            Signup with Google
-                        </Button>
                     </Form>
                 )
             }
