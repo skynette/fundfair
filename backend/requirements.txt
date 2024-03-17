@@ -8,3 +8,4 @@ gunicorn==20.0.4
 six==1.16.0
 pytz
 web3
+django-cors-headers
