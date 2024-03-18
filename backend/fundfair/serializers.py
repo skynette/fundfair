@@ -2,7 +2,7 @@ from web3 import Web3
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from .emails import send_verification_email
+from .utils import create_verification_code, verify_code
 
 User = get_user_model()
 
@@ -24,16 +24,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             is_active=False
         )
-        # TODO: Send OTP for email verification
-        
-        self._send_verification_email(user.email)
+
+        code = create_verification_code(validated_data['email'])
+        if code == "error":
+            raise serializers.ValidationError("Error sending email.")
+
         return user
-
-    def _send_verification_email(self, email):
-        """Send OTP to email."""
-        # generate the code and save to database
-
-        send_verification_email(email, '123456')
 
 
 class EmailVerificationSerializer(serializers.Serializer):
@@ -43,7 +39,10 @@ class EmailVerificationSerializer(serializers.Serializer):
     
     def verify_otp(self, email, otp):
         """Verify OTP from email."""
-        return True
+        res = verify_code(email, otp)
+        if res == 'approved':
+            return True
+        return False
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -53,7 +52,7 @@ class EmailVerificationSerializer(serializers.Serializer):
             raise serializers.ValidationError('User not found.')
         
         if not self.verify_otp(email, otp):
-            raise serializers.ValidationError('Invalid OTP.')
+            raise serializers.ValidationError('Invalid or expired OTP.')
         return attrs
 
     def save(self, **kwargs):
