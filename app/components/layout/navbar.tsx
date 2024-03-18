@@ -38,28 +38,28 @@ const Navbar = () => {
                     </Link>
                 </div>
 
-                <ConnectWallet
-                    theme={"dark"}
-                    auth={{ loginOptional: false }}
-                    switchToActiveChain={true}
-                    modalSize={"wide"}
-                    className="mx-auto -translate-x-[50%] -translate-y-[50%] bg-gray-900 text-white"
-                />
-
                 {
                     (userLoggedIn(auth) && client) ?
-                        <div className="hidden space-x-1 lg:flex">
+                        <div className="flex items-center space-x-1">
                             <Link href='/dashboard/profile' passHref legacyBehavior>
-                                <Button variant='ghost' size='icon'>
+                                <Button className="hidden lg:flex" variant='ghost' size='icon'>
                                     <User size={28} />
                                 </Button>
                             </Link>
 
                             <Link href='/dashboard/campaign' passHref legacyBehavior>
-                                <Button variant='ghost' size='icon'>
+                                <Button className="hidden lg:flex" variant='ghost' size='icon'>
                                     <SquaresFour size={28} />
                                 </Button>
                             </Link>
+
+                            <ConnectWallet
+                                theme={"dark"}
+                                auth={{ loginOptional: false }}
+                                switchToActiveChain={true}
+                                modalSize={"wide"}
+                                className="-translate-x-[50%] -translate-y-[50%] bg-gray-900 text-white"
+                            />
                         </div>
                         :
                         <div className="flex space-x-1 justify-between lg:space-x-2">

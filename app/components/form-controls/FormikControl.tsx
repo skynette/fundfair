@@ -3,12 +3,16 @@ import InputControl from './InputControl';
 import InputTextarea from './InputTextArea';
 import SelectControl from './SelectControl';
 
+export type SelectOptions = {
+    option: string, value: string | number
+}
+
 interface ControlProps {
     name: string;
     label: string;
     type: string;
     control: string;
-    options?: { option: string, value: string }[];
+    options?: SelectOptions[];
     placeholder?: string;
     handleChange?: () => void;
 }

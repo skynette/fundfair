@@ -1,11 +1,15 @@
 'use client';
 
-import { Form, Formik } from 'formik';
+import { Field, FieldProps, Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { ArrowRight, Upload } from '@phosphor-icons/react';
+import { Upload } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '../ui/button';
-import FormikControl from '../form-controls/FormikControl';
+import FormikControl, { SelectOptions } from '../form-controls/FormikControl';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { cn } from '@/lib/utils';
+import { differenceInDays, format, parseISO } from 'date-fns';
+import { Calendar } from '../ui/calendar';
 
 interface CampaignField {
     name: string;
@@ -13,26 +17,110 @@ interface CampaignField {
     target: string;
     deadline: string;
     category: string;
+    type: string;
 }
 
 const validationSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    description: Yup.string().required('Password is required').min(20, 'Provide at least 20 characters'),
-    target: Yup.string().required('Campaign target amount is required'),
-    deadline: Yup.string().required('Campaign deadline is required'),
-    category: Yup.string().required('Campaign category is required')
+    name: Yup.string().required('Campaign name is required'),
+    description: Yup.string().required('Campaign description is required').min(20, 'Provide at least 20 characters'),
+    target: Yup.number().required('Campaign target amount is required'),
+    deadline: Yup.string().required('Campaign deadline is required').test('deadline', 'Campaign must run for at least 7 days',
+        value => {
+            return differenceInDays(parseISO(new Date(value).toISOString()), new Date()) >= 7
+        }),
+    category: Yup.string().required('Campaign category is required'),
+    type: Yup.string().required('Campaign type is required')
 })
 
 function CampaignForm() {
-    const router = useRouter();;
+    const router = useRouter();
 
     const initialValues: CampaignField = {
         name: '',
         description: '',
         target: '',
         deadline: '',
-        category: ''
+        category: '',
+        type: '',
     }
+
+    const causeCategoryOption: SelectOptions[] = [
+        {
+            option: 'Health and Medicine',
+            value: 0
+        },
+        {
+            option: 'Environment and Wildlife',
+            value: 1
+        },
+        {
+            option: 'Education and Research',
+            value: 2
+        },
+        {
+            option: 'Poverty and Human Services',
+            value: 3
+        },
+        {
+            option: 'Arts Culture and Humanities',
+            value: 4
+        },
+        {
+            option: 'Children and Youth',
+            value: 5
+        },
+        {
+            option: 'Diaster Relief and Emergency Response',
+            value: 6
+        },
+        {
+            option: 'Animal Welfare',
+            value: 7
+        },
+        {
+            option: 'Community and Civic Projects',
+            value: 8
+        },
+        {
+            option: 'Technology and Innovation',
+            value: 9
+        },
+        {
+            option: 'Veterans and Military Families',
+            value: 10
+        },
+        {
+            option: 'Human Rights and Social Justice',
+            value: 11
+        },
+        {
+            option: 'International Aid and Development',
+            value: 12
+        },
+        {
+            option: 'Faith Based and Religious',
+            value: 13
+        },
+        {
+            option: 'Sports and Recreation',
+            value: 14
+        },
+        {
+            option: 'Mental Health and Wellness',
+            value: 15
+        },
+    ]
+
+    const typeOptions: SelectOptions[] = [
+        {
+            option: 'Fixed',
+            value: 'fixed'
+        },
+        {
+            option: 'Flexible',
+            value: 'flexible'
+        },
+    ]
 
     return (
         <Formik
@@ -41,7 +129,7 @@ function CampaignForm() {
             onSubmit={(field) => {
             }}>
             {
-                () => (
+                (formik) => (
                     <Form className='flex flex-col space-y-4'>
                         <div className='flex items-center justify-between'>
                             <p className='text-lg font-semibold'>Create campaign</p>
@@ -69,10 +157,11 @@ function CampaignForm() {
 
                             <FormikControl
                                 control='select'
-                                name='category'
+                                name='type'
                                 type='select'
-                                label='Campaign category'
-                                placeholder='Select category'
+                                label='Campaign type'
+                                placeholder='Select type'
+                                options={typeOptions}
                             />
 
                             <FormikControl
@@ -81,7 +170,46 @@ function CampaignForm() {
                                 type='select'
                                 label='Campaign category'
                                 placeholder='Select category'
+                                options={causeCategoryOption}
                             />
+
+                            <div className='flex flex-col space-y-1'>
+                                <Field name="deadline">
+                                    {
+                                        ({ field, form }: FieldProps) => {
+                                            return (
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <Button
+                                                            type='button'
+                                                            variant='outline'
+                                                            className={cn(
+                                                                "justify-start text-left font-normal",
+                                                                field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? format(field.value, "PPP") : <span className='text-sm text-[#737373]'>Target deadline (DD/MM/YY)</span>}
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0">
+                                                        <Calendar
+                                                            mode="single"
+                                                            captionLayout="dropdown-buttons"
+                                                            selected={field.value}
+                                                            onSelect={e => form.setFieldValue('deadline', e)}
+                                                            {...field}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                            )
+                                        }
+                                    }
+                                </Field>
+                                {
+                                    (formik.errors.deadline) ? <small className='text-red-500 text-xs'>{formik.errors.deadline}</small> : null
+                                }
+                            </div>
 
                             <FormikControl
                                 label='Campaign description'

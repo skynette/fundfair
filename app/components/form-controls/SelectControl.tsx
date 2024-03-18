@@ -4,12 +4,13 @@ import { ErrorMessage, Field, FieldProps } from 'formik';
 import { nanoid } from 'nanoid';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { SelectOptions } from './FormikControl';
 
 interface SelectProps {
     name: string;
     label: string;
     placeholder?: string;
-    options?: { option: string, value: string }[];
+    options?: SelectOptions[];
     handleChange?: (id: number) => void;
 }
 
@@ -30,7 +31,7 @@ function SelectControl({ name, label, placeholder, options }: SelectProps) {
                                 <SelectContent>
                                     {
                                         options?.map((item) => (
-                                            <SelectItem key={nanoid()} id={name} value={item.value} className='text-sm'>
+                                            <SelectItem key={nanoid()} id={name} value={item.value.toString()} className='text-sm'>
                                                 {item.option}
                                             </SelectItem>)
                                         )
