@@ -26,6 +26,7 @@ def create_verification_code(email):
         send_verification_email(email, code)
         return code
     except Exception as e:
+        print("AN ERROR OCCURRED WHILE SENDING EMAIL: ", e)
         return "error"
 
 
