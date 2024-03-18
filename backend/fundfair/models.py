@@ -6,3 +6,16 @@ class CustomUser(AbstractUser):
     email_verified = models.BooleanField(default=False) 
     def __str__(self) -> str:
         return f"{self.username} {self.email} {self.wallet_address}"
+    
+
+class EmailVerification(models.Model):
+    code = models.CharField(max_length=6)
+    email = models.EmailField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"{self.email} {self.code}"
+    
+    class Meta:
+        ordering = ['-created_at']
