@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.17;
 
 
 /// @title Smart Contract for FundFair v1.0
 /// @author Joshua Hassan
 /// @notice This smart contract is designed for creating and managing crowdfunding campaigns.
 /// @dev The contract includes functions for creating, funding, closing campaigns, retrieving campaign and funder details, and withdrawing funds.
-
 
 contract FundFair {
     enum FundingModel {Fixed, Flexible}
