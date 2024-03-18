@@ -22,7 +22,8 @@ import Providers from './providers/react-query-provider';
 
 
 const epilogue = Epilogue({
-    subsets: ['latin']
+    subsets: ['latin'],
+    display: 'fallback',
 })
 
 export default function RootLayout({
