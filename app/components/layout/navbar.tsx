@@ -1,6 +1,6 @@
 'use client';
 
-import { ConnectWallet } from "@thirdweb-dev/react";
+import { ConnectWallet, useAddress, useDisconnect } from "@thirdweb-dev/react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { Menu } from "lucide-react";
@@ -14,6 +14,9 @@ import { useEffect, useState } from "react";
 const Navbar = () => {
     const { auth } = useAuth();
     const [client, setClient] = useState(false);
+
+    const address = useAddress();
+    const disconnect = useDisconnect();
 
     useEffect(() => {
         setClient(true);
@@ -53,13 +56,28 @@ const Navbar = () => {
                                 </Button>
                             </Link>
 
-                            <ConnectWallet
-                                theme={"dark"}
-                                auth={{ loginOptional: false }}
-                                switchToActiveChain={true}
-                                modalSize={"wide"}
-                                className="-translate-x-[50%] -translate-y-[50%] bg-gray-900 text-white"
-                            />
+                            {!address &&
+                                <ConnectWallet
+                                    theme={"dark"}
+                                    auth={{ loginOptional: false }}
+                                    switchToActiveChain={true}
+                                    modalSize={"wide"}
+                                    className="-translate-x-[50%] -translate-y-[50%] bg-gray-900 text-white"
+                                />
+                            }
+                            {address && (
+                                <div className="flex items-center justify-center gap-2 bg-gray-900 text-white p-3 rounded-lg">
+                                    <span>{`${address.substring(0, 6)}...${address.substring(address.length - 4)}`}</span>
+                                    <button
+                                        onClick={disconnect}
+                                        className="p-2 rounded-full bg-red-500 hover:bg-red-700 transition-colors"
+                                        aria-label="Disconnect">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25V9M12 15.75v-6.75m0 0L8.25 12m3.75-3.75L15.75 12M21 12H3" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         :
                         <div className="flex space-x-1 justify-between lg:space-x-2">

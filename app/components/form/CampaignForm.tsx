@@ -11,6 +11,8 @@ import { cn } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import { Calendar } from '../ui/calendar';
 
+import { useAddress, useContract, useContractWrite } from "@thirdweb-dev/react";
+
 interface CampaignField {
     name: string;
     description: string;
@@ -34,8 +36,10 @@ const validationSchema = Yup.object().shape({
 
 function CampaignForm() {
     const router = useRouter();
+    const { contract } = useContract(process.env.NEXT_CONTRACT_ADDRESS);
+    const owner = useAddress();
 
-    
+    const { mutateAsync: createCampaign, isLoading } = useContractWrite(contract, "createCampaign")
 
     const initialValues: CampaignField = {
         name: '',
@@ -44,6 +48,15 @@ function CampaignForm() {
         deadline: '',
         category: '',
         type: '',
+    }
+
+    const callCreateCampaign = async (formData: CampaignField) => {
+        try {
+            const data = await createCampaign({ args: [owner, formData.name, formData.description, formData.target, "1000000000000000000000000", "imageurl", formData.type, formData.category] });
+            console.info("contract call successs", data);
+        } catch (err) {
+            console.error("contract call failure", err);
+        }
     }
 
     const causeCategoryOption: SelectOptions[] = [
@@ -129,6 +142,7 @@ function CampaignForm() {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={(field) => {
+                callCreateCampaign(field)
             }}>
             {
                 (formik) => (
