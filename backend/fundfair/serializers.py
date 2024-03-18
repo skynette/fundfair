@@ -2,6 +2,8 @@ from web3 import Web3
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
+from .emails import send_verification_email
+
 User = get_user_model()
 
 
@@ -24,12 +26,14 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         )
         # TODO: Send OTP for email verification
         
-        self.send_verification_email(user.email)
+        self._send_verification_email(user.email)
         return user
 
-    def send_verification_email(self, email):
+    def _send_verification_email(self, email):
         """Send OTP to email."""
-        pass
+        # generate the code and save to database
+
+        send_verification_email(email, '123456')
 
 
 class EmailVerificationSerializer(serializers.Serializer):

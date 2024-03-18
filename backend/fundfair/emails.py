@@ -6,16 +6,18 @@ from zcore.settings import EMAIL_HOST_USER
 from_email = EMAIL_HOST_USER
 
 
-def send_email():
+def send_verification_email(email, otp):
 	context = {
+		"email": email,
+		"otp": otp
 	}
-	html_content = render_to_string("email_code.html", context)
+	html_content = render_to_string("emails/email_code.html", context)
 	text_content = strip_tags(html_content)
 	email = EmailMultiAlternatives(
-		"subject,",
+		"FundFair Email Verification",
 		text_content,
 		"FundFair",
-		["receipent"]
+		[email]
 	)
 	email.attach_alternative(html_content, 'text/html')
 	email.send()
