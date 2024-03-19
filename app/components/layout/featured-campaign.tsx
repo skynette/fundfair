@@ -8,7 +8,6 @@ import { nanoid } from 'nanoid';
 import { Button } from "../ui/button";
 
 import { useContract, useContractRead } from "@thirdweb-dev/react";
-import { ethers } from 'ethers';
 import { Campaign, BigNumber, FundingModel, CauseCategory } from "../../lib/types";
 import { convertToCampaigns } from "@/lib/utils";
 

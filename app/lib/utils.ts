@@ -72,7 +72,7 @@ export function hexToOp(hex: string): string {
 
 export async function formatUsdToOp(usdAmount: string) {
     let op = await convertUsdToOp(parseInt(usdAmount));
-    return ethers.utils.parseEther(op.toString());
+    return ethers.utils.parseUnits(op.toString(), 18).toString()
 }
 
 export async function convertUsdToOp(usdAmount: number) {

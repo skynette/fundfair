@@ -58,7 +58,7 @@ function CampaignForm() {
             const targetInOp = await formatUsdToOp(formData.target);
 
             const data = await createCampaign({
-                args: [owner, formData.name, formData.description, targetInOp.toString(), deadlineInSeconds, "imageurl", formData.type, formData.category]
+                args: [owner, formData.name, formData.description, targetInOp, deadlineInSeconds, "imageurl", formData.type, formData.category]
             });
             console.info("contract call success", data);
         } catch (err) {
