@@ -36,7 +36,7 @@ const validationSchema = Yup.object().shape({
 
 function CampaignForm() {
     const router = useRouter();
-    const { contract } = useContract(process.env.NEXT_CONTRACT_ADDRESS);
+    const { contract } = useContract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
     const owner = useAddress();
 
     const { mutateAsync: createCampaign, isLoading } = useContractWrite(contract, "createCampaign")
@@ -129,11 +129,11 @@ function CampaignForm() {
     const typeOptions: SelectOptions[] = [
         {
             option: 'Fixed',
-            value: 'fixed'
+            value: 'Fixed'
         },
         {
             option: 'Flexible',
-            value: 'flexible'
+            value: 'Flexible'
         },
     ]
 
@@ -150,8 +150,8 @@ function CampaignForm() {
                         <div className='flex items-center justify-between'>
                             <p className='text-lg font-semibold'>Create campaign</p>
                             <Button
-                                // disabled={isPending}
-                                // isLoading={isPending}
+                                disabled={!contract || isLoading}
+                                isLoading={!contract || isLoading}
                                 type='submit'
                                 className='text-white shadow-sm rounded-lg'><Upload size={20} className='mr-2' weight='bold' /> Save</Button>
                         </div>

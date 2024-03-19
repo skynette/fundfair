@@ -1,6 +1,6 @@
-from web3 import Web3 
+from web3 import Web3
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 
 from .utils import create_verification_code, verify_code
 
@@ -36,7 +36,6 @@ class EmailVerificationSerializer(serializers.Serializer):
     otp = serializers.CharField(max_length=6, required=True)
     email = serializers.EmailField(required=True)
 
-    
     def verify_otp(self, email, otp):
         """Verify OTP from email."""
         res = verify_code(email, otp)
@@ -50,7 +49,7 @@ class EmailVerificationSerializer(serializers.Serializer):
         user = User.objects.filter(email=email).first()
         if not user:
             raise serializers.ValidationError('User not found.')
-        
+
         if not self.verify_otp(email, otp):
             raise serializers.ValidationError('Invalid or expired OTP.')
         return attrs
@@ -62,7 +61,6 @@ class EmailVerificationSerializer(serializers.Serializer):
         user.save()
 
 
-
 class WalletLinkingSerializer(serializers.Serializer):
     wallet_address = serializers.CharField(max_length=42)
 
@@ -72,10 +70,29 @@ class WalletLinkingSerializer(serializers.Serializer):
         if not Web3.isAddress(value):
             raise serializers.ValidationError("This is not a valid Ethereum address.")
         return value
-    
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'email', 'wallet_address')
-        read_only_fields = ('username', 'wallet_address') 
+        fields = ('first_name', 'last_name',
+                  'username', 'email', 'wallet_address')
+        read_only_fields = ('username', 'wallet_address')
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=42)
+    password = serializers.CharField(max_length=42)
+
+    def create(self, validated_data):
+        username = validated_data.get('username')
+        password = validated_data.get('password')
+
+        if not username or not password:
+            raise serializers.ValidationError("Username and password are required.")
+        
+        user = authenticate(username=username, password=password)
+        if user is None:
+            raise serializers.ValidationError("Invalid username or password.")
+
+        return user

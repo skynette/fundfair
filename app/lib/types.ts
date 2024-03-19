@@ -1,4 +1,4 @@
-interface Campaign {
+export interface Campaign {
     owner: string;
     title: string;
     description: string;
@@ -14,12 +14,12 @@ interface Campaign {
     category: CauseCategory;
 }
 
-enum FundingModel {
+export enum FundingModel {
     Fixed,
     Flexible
 }
 
-enum CauseCategory {
+export enum CauseCategory {
     HealthAndMedicine,
     EnvironmentAndWildlife,
     EducationAndResearch,
@@ -39,14 +39,14 @@ enum CauseCategory {
 }
 
 
-interface BlockchainTransactionResponse {
+export interface BlockchainTransactionResponse {
     to: string;
     from: string;
     transactionHash: string;
     events: BlockchainEvent[];
 }
 
-interface BlockchainEvent {
+export interface BlockchainEvent {
     transactionIndex: number;
     blockNumber: number;
     transactionHash: string;
@@ -60,7 +60,7 @@ interface BlockchainEvent {
     eventSignature: string;
 }
 
-interface CampaignCreatedArgs {
+export interface CampaignCreatedArgs {
     campaignId: BigNumber;
     owner: string;
     title: string;
@@ -68,7 +68,7 @@ interface CampaignCreatedArgs {
 }
 
 
-interface BigNumber {
+export interface BigNumber {
     type: string;
     hex: string;
 }
