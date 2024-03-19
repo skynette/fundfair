@@ -138,22 +138,13 @@ class UserProfileView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        request=WalletLinkingSerializer,
         responses={200: UserProfileSerializer},
-        description="Retrieve a user's profile information",
+        description="Retrieve the authenticated user's profile information",
     )
-    def post(self, request):
-        wallet_serializer = WalletLinkingSerializer(data=request.data)
-        if wallet_serializer.is_valid():
-            wallet_address = wallet_serializer.validated_data['wallet_address']
-            try:
-                user = User.objects.get(wallet_address=wallet_address)
-                user_serializer = UserProfileSerializer(user)
-                return Response(user_serializer.data)
-            except User.DoesNotExist:
-                return Response({"message": "No user associated with this wallet address"}, status=status.HTTP_404_NOT_FOUND)
-
-        return Response(wallet_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        user = request.user
+        user_serializer = UserProfileSerializer(user)
+        return Response(user_serializer.data)
 
 
 user_profile_view = UserProfileView.as_view()
