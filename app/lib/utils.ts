@@ -50,9 +50,9 @@ export function convertToCampaigns(rawData: any[]): Campaign[] {
             owner: item[0] as string,
             title: item[1] as string,
             description: item[2] as string,
-            target: ethers.utils.formatEther(item[3].hex),
-            deadline: ethers.utils.formatEther(item[4].hex),
-            amountRaised: ethers.utils.formatEther(item[5].hex),
+            target: hexToOp(item[3]._hex),
+            deadline: Number(ethers.BigNumber.from(item[4]._hex)),
+            amountRaised: hexToOp(item[5]._hex),
             image: item[6],
             donators: item[7],
             donations: item[8],
@@ -66,7 +66,9 @@ export function convertToCampaigns(rawData: any[]): Campaign[] {
     });
 }
 
-
+export function hexToOp(hex: string): string {
+    return ethers.utils.formatEther(ethers.BigNumber.from(hex));
+}
 
 async function convertUsdToOp(usdAmount: number) {
     try {
@@ -87,6 +89,29 @@ async function convertUsdToOp(usdAmount: number) {
 // Example usage:
 convertUsdToOp(50).then(opAmount => {
     console.log(`$50 is approximately ${opAmount} OP`);
+}).catch(error => {
+    console.error('Conversion error:', error);
+});
+
+
+async function convertOpToUsd(opAmount: number) {
+    try {
+        const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=optimism&vs_currencies=usd');
+        const rate = response.data.optimism.usd;
+
+        // Convert the OP amount to USD
+        const usdAmount = opAmount * rate;
+
+        return usdAmount;
+    } catch (error) {
+        console.error('Error converting OP to USD:', error);
+        throw error;
+    }
+}
+
+// Example usage:
+convertOpToUsd(10).then(usdAmount => {
+    console.log(`3012 OP is approximately $${usdAmount}`);
 }).catch(error => {
     console.error('Conversion error:', error);
 });

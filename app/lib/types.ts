@@ -3,7 +3,7 @@ export interface Campaign {
     title: string;
     description: string;
     target: string;
-    deadline: string;
+    deadline: Number;
     amountRaised: string;
     image: string;
     donators: string[];
