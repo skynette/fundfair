@@ -87,7 +87,7 @@ contract FundFair {
         campaign.owner = _owner;
         campaign.title = _title;
         campaign.description = _description;
-        campaign.target = _target;
+        campaign.target = _target * 1e18;
         campaign.deadline = _deadline;
         campaign.amountRaised = 0;
         campaign.image = _image;

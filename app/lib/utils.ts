@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { Campaign } from "./types";
 import { ethers } from "ethers";
+import axios from 'axios'
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -64,3 +65,28 @@ export function convertToCampaigns(rawData: any[]): Campaign[] {
         return campaign;
     });
 }
+
+
+
+async function convertUsdToOp(usdAmount: number) {
+    try {
+        // Fetch the current exchange rate from CoinGecko
+        const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=optimism&vs_currencies=usd');
+        const rate = response.data.optimism.usd; // The current price of 1 OP in USD
+
+        // Convert the USD amount to OP
+        const opAmount = usdAmount / rate;
+
+        return opAmount;
+    } catch (error) {
+        console.error('Error converting USD to OP:', error);
+        throw error;
+    }
+}
+
+// Example usage:
+convertUsdToOp(50).then(opAmount => {
+    console.log(`$50 is approximately ${opAmount} OP`);
+}).catch(error => {
+    console.error('Conversion error:', error);
+});
