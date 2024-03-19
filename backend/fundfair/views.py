@@ -10,6 +10,17 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from .serializers import EmailVerificationSerializer, ImageUploadSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
 
+# from thirdweb import ThirdwebSDK
+# from thirdweb.types import SDKOptions
+
+
+# sdk = ThirdwebSDK("op-sepolia-testnet", options=SDKOptions(secret_key="YOUR_SECRET_KEY"))
+# contract = sdk.get_contract("0x964C12A4c0bbFB49Ba18bFD02A5332D37D3083d2")
+
+
+# # to create a campaign
+# data = contract.call("createCampaign", _owner, _title, _description, _target, _deadline, _image, _fundingModel, _category)
+
 User = get_user_model()
 
 

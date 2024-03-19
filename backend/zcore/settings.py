@@ -31,12 +31,23 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG') == "True"
 
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ['https://fundfair.up.railway.app', 'https://www.fundfair.up.railway.app']
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 # CSRF_COOKIE_DOMAIN = '.up.railway.app'
-
+CORS_ALLOW_HEADERS = (
+    "x-requested-with",
+    "content-type",
+    "accept",
+    "origin",
+    "authorization",
+    "accept-encoding",
+    "access-control-allow-origin",
+    "content-disposition",
+)
 
 # Application definition
 
@@ -47,6 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "corsheaders",
     'whitenoise.runserver_nostatic',
     'cloudinary_storage',
     'cloudinary',
@@ -64,12 +76,12 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'zcore.urls'
@@ -173,12 +185,6 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS') == "True"
 # Custom user model
 AUTH_USER_MODEL = 'fundfair.CustomUser'
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "https://fundfair.vercel.app/"
-    "https://fundfair.vercel.app"
-]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
