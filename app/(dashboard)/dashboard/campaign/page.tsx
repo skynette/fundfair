@@ -18,11 +18,11 @@ const CampaignPage = () => {
                     <Plus size={24} className="mr-2" /> Create campaign
                 </Button>
             </div>
-            <div className=" grid gap-2 grid-cols-2 lg:grid-cols-3 lg:gap-x-4 lg:gap-y-6">
+            {/* <div className=" grid gap-2 grid-cols-2 lg:grid-cols-3 lg:gap-x-4 lg:gap-y-6">
                 {
                     Array.from({ length: 6 }).map(item => <CampaignItem key={nanoid()} />)
                 }
-            </div>
+            </div> */}
         </div>
     )
 }
