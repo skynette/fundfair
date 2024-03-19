@@ -33,7 +33,6 @@ function SigninForm() {
             router.push('/');
         },
         onError(error, variables, context) {
-            console.log(error);
             // @ts-ignore
             toast.error(error.response?.data.detail);
         },

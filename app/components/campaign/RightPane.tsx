@@ -13,7 +13,7 @@ const RightPane = () => {
     const amounts = [5, 10, 25, 50, 75, 100];
     const [amountToDonate, setAmountToDonate] = useState<number>();
 
-    const { data } = useQuery({
+    const { data, isPending } = useQuery({
         queryKey: ['optimism-price'],
         queryFn: optToUSD
     });
@@ -36,7 +36,7 @@ const RightPane = () => {
             <Label htmlFor='donate-input' className='text-gray-500 text-sm mt-4'>Optimism</Label>
             <Input id='donate-input' value={amountToDonate} placeholder="Optimism" className="mt-[2px] focus-visible:ring-0 focus-visible:ring-offset-0" />
 
-            <Button className='mt-6 inline-flex justify-between text-white bg-blue-500 text-sm font-semibold'>
+            <Button disabled={isPending} className='mt-6 inline-flex justify-between text-white bg-blue-500 text-sm font-semibold'>
                 Donate now
                 <ArrowUpRight size={32} />
             </Button>
