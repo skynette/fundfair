@@ -8,7 +8,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from .serializers import EmailVerificationSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
+from .serializers import EmailVerificationSerializer, ImageUploadSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
 
 User = get_user_model()
 
@@ -148,3 +148,17 @@ class UserProfileView(generics.RetrieveAPIView):
 
 
 user_profile_view = UserProfileView.as_view()
+
+
+class ImageUploadView(generics.GenericAPIView):
+    serializer_class = ImageUploadSerializer
+
+    def post(self, request, format=None):
+        serializer = ImageUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+image_upload_view = ImageUploadView.as_view()

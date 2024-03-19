@@ -1,11 +1,15 @@
+cloudinary==1.32.0
+django-cloudinary-storage==0.3.0
 Django==4.0
 drf-spectacular==0.26.2
 djangorestframework==3.12.4
 djangorestframework-simplejwt==5.3.1
 psycopg2==2.9.6
 python-dotenv==0.21.0
+pillow
 gunicorn==20.0.4
 six==1.16.0
 pytz
 web3
 django-cors-headers
+whitenoise

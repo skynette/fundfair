@@ -19,3 +19,7 @@ class EmailVerification(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+
+
+class ImageUpload(models.Model):
+    image = models.ImageField(upload_to="campaign_images/", null=True, blank=True)
