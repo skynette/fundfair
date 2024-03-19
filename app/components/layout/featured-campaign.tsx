@@ -10,11 +10,10 @@ import { Button } from "../ui/button";
 import { useContract, useContractRead } from "@thirdweb-dev/react";
 import { ethers } from 'ethers';
 import { Campaign, BigNumber, FundingModel, CauseCategory } from "../../lib/types";
+import { convertToCampaigns } from "@/lib/utils";
 
-export const CampaignItem = () => {
-    const { contract } = useContract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
-    const { data: allCampaigns, isLoading } = useContractRead(contract, "getCampaigns")
-    
+export const CampaignItem = (campaign: Campaign) => {
+    console.log(campaign);
     return (
         <div className="flex flex-col shadow-sm rounded-lg bg-gray-600/0.5">
             <AspectRatio ratio={10 / 7}>
@@ -68,12 +67,16 @@ export const CampaignItem = () => {
 }
 
 const FeaturedCampaign = () => {
+    const { contract } = useContract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
+    const { data: allCampaigns, isLoading } = useContractRead(contract, "getCampaigns");
+
     return (
         <div className="container flex flex-col space-y-2 py-6 lg:py-12">
             <p className="text-center text-xl font-semibold">Featured campaigns</p>
             <div className="w-full grid gap-2 grid-cols-1 md:gap-3 md:grid-cols-3 lg:gap-4 lg:grid-cols-4">
                 {
-                    Array.from({ length: 4 }).map(item => <CampaignItem key={nanoid()} />)
+                    convertToCampaigns(allCampaigns).map(campaign => (<CampaignItem key={nanoid()} {...campaign} />))
+                    // Array.from({ length: 4 }).map(item => <CampaignItem key={nanoid()} />)
                 }
             </div>
         </div>

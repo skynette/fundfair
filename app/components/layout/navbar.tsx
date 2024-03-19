@@ -68,12 +68,12 @@ const Navbar = () => {
                             {address && (
                                 <Button
                                     onClick={disconnect}
-                                    className='p-2 inline-flex flex-col justify-between items-center text-xs'
+                                    className='p-2 inline-flex flex-col items-center text-xs'
                                     variant='destructive'
                                     aria-label='Disconnect'>
                                     <span className="block">Disconnect wallet</span>
                                     <div className="flex space-x-1 items-center">
-                                        <p className="translate-y-[2px]">{`${address.substring(0, 6)}...${address.substring(address.length - 4)}`}</p>
+                                        <p className="translate-y-[2px]">{`${address.substring(0, 5)}...${address.substring(address.length - 4)}`}</p>
                                         <SignOut size={16} />
                                     </div>
                                 </Button>

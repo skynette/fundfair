@@ -2,12 +2,12 @@ export interface Campaign {
     owner: string;
     title: string;
     description: string;
-    target: BigNumber;
-    deadline: BigNumber;
-    amountRaised: BigNumber;
+    target: string;
+    deadline: string;
+    amountRaised: string;
     image: string;
     donators: string[];
-    donations: BigNumber[];
+    donations: string[];
     isFundingGoalReached: boolean;
     isCampaignClosed: boolean;
     fundingModel: FundingModel;
