@@ -1,7 +1,8 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { Campaign } from "./types";
-import axios from 'axios';
+import { ethers } from "ethers";
+import axios from 'axios'
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -43,17 +44,26 @@ export const userLoggedIn = (user: any) => {
  * Usage example:
  * const typedCampaigns = convertToCampaigns(rawBlockchainData);
  */
-function convertToCampaigns(rawData: any[]): Campaign[] {
-    return rawData.map(item => ({
-        // Conversion logic goes here, e.g.,
-        // owner: item[0] as string,
-        // title: item[1] as string,
-        // description: item[2] as string,
-        // target: convertToNumber(item[3].hex), // or convertToString based on context
-        // deadline: convertToNumber(item[4].hex), // or convertToString
-        // amountRaised: convertToNumber(item[5].hex), // or convertToString
-        // Other fields...
-    }));
+export function convertToCampaigns(rawData: any[]): Campaign[] {
+    return rawData.map(item => {
+        const campaign: Campaign = {
+            owner: item[0] as string,
+            title: item[1] as string,
+            description: item[2] as string,
+            target: ethers.utils.formatEther(item[3].hex),
+            deadline: ethers.utils.formatEther(item[4].hex),
+            amountRaised: ethers.utils.formatEther(item[5].hex),
+            image: item[6],
+            donators: item[7],
+            donations: item[8],
+            isFundingGoalReached: item[9],
+            isCampaignClosed: item[10],
+            fundingModel: item[11],
+            category: item[12],
+        };
+
+        return campaign;
+    });
 }
 
 

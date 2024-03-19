@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import SideBar from "../dashboard/SideBar";
 import useAuth from "@/lib/hooks/useAuth";
 import { userLoggedIn } from "@/lib/utils";
-import { SquaresFour, User } from "@phosphor-icons/react";
+import { SignOut, SquaresFour, User } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 const Navbar = () => {
@@ -66,17 +66,17 @@ const Navbar = () => {
                                 />
                             }
                             {address && (
-                                <div className="flex items-center justify-center gap-2 bg-gray-900 text-white p-3 rounded-lg">
-                                    <span>{`${address.substring(0, 6)}...${address.substring(address.length - 4)}`}</span>
-                                    <button
-                                        onClick={disconnect}
-                                        className="p-2 rounded-full bg-red-500 hover:bg-red-700 transition-colors"
-                                        aria-label="Disconnect">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25V9M12 15.75v-6.75m0 0L8.25 12m3.75-3.75L15.75 12M21 12H3" />
-                                        </svg>
-                                    </button>
-                                </div>
+                                <Button
+                                    onClick={disconnect}
+                                    className='p-2 inline-flex flex-col items-center text-xs'
+                                    variant='destructive'
+                                    aria-label='Disconnect'>
+                                    <span className="block">Disconnect wallet</span>
+                                    <div className="flex space-x-1 items-center">
+                                        <p className="translate-y-[2px]">{`${address.substring(0, 5)}...${address.substring(address.length - 4)}`}</p>
+                                        <SignOut size={16} />
+                                    </div>
+                                </Button>
                             )}
                         </div>
                         :
