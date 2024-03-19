@@ -13,7 +13,6 @@ import { Campaign, BigNumber, FundingModel, CauseCategory } from "../../lib/type
 import { convertToCampaigns } from "@/lib/utils";
 
 export const CampaignItem = (campaign: Campaign) => {
-    console.log(campaign);
     return (
         <div className="flex flex-col shadow-sm rounded-lg bg-gray-600/0.5">
             <AspectRatio ratio={10 / 7}>
