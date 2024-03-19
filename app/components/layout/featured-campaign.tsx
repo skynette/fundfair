@@ -1,3 +1,5 @@
+'use client';
+
 import Image from "next/image";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { FolderSimple } from '@phosphor-icons/react'
@@ -5,7 +7,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { nanoid } from 'nanoid';
 import { Button } from "../ui/button";
 
+import { useContract, useContractRead } from "@thirdweb-dev/react";
+import { ethers } from 'ethers';
+import { Campaign, BigNumber, FundingModel, CauseCategory } from "../../lib/types";
+
 export const CampaignItem = () => {
+    const { contract } = useContract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
+    const { data: allCampaigns, isLoading } = useContractRead(contract, "getCampaigns")
+    
     return (
         <div className="flex flex-col shadow-sm rounded-lg bg-gray-600/0.5">
             <AspectRatio ratio={10 / 7}>
