@@ -8,7 +8,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from .serializers import EmailVerificationSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
+from .serializers import EmailVerificationSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
 
 User = get_user_model()
 
@@ -26,9 +26,11 @@ class UserRegistrationView(generics.GenericAPIView):
         if serializer.is_valid():
             user = serializer.save()
             refresh = TokenObtainPairSerializer.get_token(user)
-            
+
             return Response({
                 'user': {
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
                     'username': user.username,
                     'email': user.email,
                 },
@@ -38,11 +40,40 @@ class UserRegistrationView(generics.GenericAPIView):
                 },
                 'message': 'User registered successfully',
             }, status=status.HTTP_201_CREATED)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 user_registration_view = UserRegistrationView.as_view()
+
+
+class CustomTokenObtainPairView(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = TokenObtainPairSerializer.get_token(user)
+            
+            return Response({
+                'user': {
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'username': user.username,
+                    'email': user.email,
+                },
+                'token': {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                },
+                'message': 'User Login successfully',
+            }, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+login_view = CustomTokenObtainPairView.as_view()
 
 
 class EmailVerificationView(generics.GenericAPIView):
@@ -123,5 +154,6 @@ class UserProfileView(generics.RetrieveAPIView):
                 return Response({"message": "No user associated with this wallet address"}, status=status.HTTP_404_NOT_FOUND)
 
         return Response(wallet_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 user_profile_view = UserProfileView.as_view()
