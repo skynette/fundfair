@@ -18,6 +18,5 @@ urlpatterns = [
 
     # campaign
     path('campaign/', create_campaign_view, name='create_campaign'),
-
-    
+    path('campaign/<int:id>/', get_campaign_by_id_view, name='campaign_detail'),
 ]

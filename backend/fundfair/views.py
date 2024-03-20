@@ -10,8 +10,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
+from .utils import format_campaign_data
 from .models import Campaign
-
 from .serializers import CampaignSerializer, EmailVerificationSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
 
 from web3 import Web3
@@ -247,3 +247,48 @@ class CreateCampaignView(generics.GenericAPIView):
 
 
 create_campaign_view = CreateCampaignView.as_view()
+
+
+
+class GetCampaignByIDView(generics.GenericAPIView):
+    @extend_schema(
+        responses={
+            200: OpenApiResponse(description="Successfully retrieved campaign details."),
+            400: OpenApiResponse(description="Invalid request: Campaign ID is required."),
+            404: OpenApiResponse(description="Campaign not found."),
+            500: OpenApiResponse(description="A server error occurred."),
+        },
+        description="Retrieves a single campaign's details from the blockchain by its index.",
+        parameters=[{
+            'name': 'id',
+            'description': 'Index of the campaign in the smart contract array',
+            'required': True,
+            'in': 'path',
+            'schema': {
+                'type': 'integer',
+                'format': 'int64'
+            }
+        }],
+    )
+    def get(self, request, *args, **kwargs):
+        campaign_id = kwargs.get('id', None)
+        if campaign_id is None:
+            return Response({"message": "Campaign ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Setup web3 connection and load contract
+        w3, contract = setup_web3()
+
+        try:
+            # Fetch campaign data
+            campaign_data = contract.functions.campaigns(campaign_id).call()
+            # Fetch funders data
+            funders_data = contract.functions.getFunders(campaign_id).call()
+
+            formatted_data = format_campaign_data(w3, campaign_data, funders_data)
+            return Response(formatted_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+get_campaign_by_id_view = GetCampaignByIDView.as_view()

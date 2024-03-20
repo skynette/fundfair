@@ -13,3 +13,4 @@ pytz
 web3
 django-cors-headers
 whitenoise
+requests
