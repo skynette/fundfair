@@ -1,6 +1,7 @@
 'use client';
 
-import { ConnectWallet, useAddress, useDisconnect, useNetworkMismatch } from "@thirdweb-dev/react";
+import { ConnectWallet, useAddress, useDisconnect, useNetworkMismatch, useSwitchChain } from "@thirdweb-dev/react";
+import { OpSepoliaTestnet } from "@thirdweb-dev/chains";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { Menu } from "lucide-react";
@@ -8,7 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import SideBar from "../dashboard/SideBar";
 import useAuth from "@/lib/hooks/useAuth";
 import { userLoggedIn } from "@/lib/utils";
-import { SignOut, SquaresFour, User } from "@phosphor-icons/react";
+import { SignOut, SquaresFour, User, ArrowsClockwise } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 const Navbar = () => {
@@ -16,16 +17,16 @@ const Navbar = () => {
     const [client, setClient] = useState(false);
 
     const isMismatched = useNetworkMismatch();
-
-    // function to change the network
-    const changeNetwork = () => {
-        if (isMismatched) {
-            // change the network
-        }
-    }
-
+    const switchChain = useSwitchChain();
     const address = useAddress();
     const disconnect = useDisconnect();
+
+    // Function to change the network
+    const changeNetwork = async () => {
+        if (isMismatched) {
+            await switchChain(OpSepoliaTestnet.chainId);
+        }
+    };
 
     useEffect(() => {
         setClient(true);
@@ -74,16 +75,26 @@ const Navbar = () => {
                                     className="-translate-x-[50%] -translate-y-[50%] bg-gray-900 text-white"
                                 />
                             }
-                            {address && (
+
+                            {address && isMismatched && (
                                 <Button
-                                    onClick={disconnect}
-                                    className='p-2 inline-flex flex-col items-center text-xs'
-                                    variant='destructive'
+                                    onClick={changeNetwork}
+                                    className='p-3 inline-flex flex-col items-center bg-gray-200 text-black'
+                                    variant='ghost'
+                                    aria-label='Switch Network'>
+                                    <span className="block">Switch Network</span>
+                                    <ArrowsClockwise size={16} />
+                                </Button>
+                            )}
+                            {address && !isMismatched && (
+                                <Button
+                                    onClick={()=>{}}
+                                    className='p-3 inline-flex flex-col items-center bg-gray-200 text-black'
+                                    variant='ghost'
                                     aria-label='Disconnect'>
-                                    <span className="block">Disconnect wallet</span>
                                     <div className="flex space-x-1 items-center">
                                         <p className="translate-y-[2px]">{`${address.substring(0, 5)}...${address.substring(address.length - 4)}`}</p>
-                                        <SignOut size={16} />
+                                        <SignOut onClick={disconnect} size={16} />
                                     </div>
                                 </Button>
                             )}
