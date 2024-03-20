@@ -6,7 +6,7 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
             <div className="hidden lg:block">
                 <SideBar />
             </div>
-            <div className="lg:bg-gray-100">
+            <div className="h-screen lg:bg-gray-100">
                 {children}
             </div>
         </main>
