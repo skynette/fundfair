@@ -83,13 +83,15 @@ def format_campaign_data(w3, campaign_data, funders_data):
         donations_op = []
 
     donations_usd = [donation_op * op_to_usd_rate for donation_op in donations_op]
+    deadline_readable = datetime.datetime.utcfromtimestamp(campaign_data[4]).strftime('%Y-%m-%d %H:%M:%S')
 
     formatted_data = {
         "owner": campaign_data[0] if len(campaign_data) > 0 else None,
         "title": campaign_data[1] if len(campaign_data) > 1 else None,
         "description": campaign_data[2] if len(campaign_data) > 2 else None,
-         "target": Decimal(w3.fromWei(campaign_data[3], 'ether')),
+        "target": Decimal(w3.fromWei(campaign_data[3], 'ether')),
         "targetInUsd": Decimal(w3.fromWei(campaign_data[3], 'ether')) * op_to_usd_rate,
+        "deadline": deadline_readable,
         "amountRaised": Decimal(w3.fromWei(campaign_data[5], 'ether')),
         "amountRaisedUSD": Decimal(w3.fromWei(campaign_data[5], 'ether')) * op_to_usd_rate,
         "image": campaign_data[6] if len(campaign_data) > 6 else None,
