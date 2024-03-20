@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.conf import settings
 
@@ -10,7 +11,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from .utils import batch_format_campaign_data, format_campaign_data
+from .utils import batch_format_campaign_data, format_campaign_data, get_op_to_usd_rate
 from .models import Campaign
 from .serializers import CampaignSerializer, EmailVerificationSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
 
@@ -184,6 +185,7 @@ user_profile_view = UserProfileView.as_view()
 class CreateCampaignView(generics.GenericAPIView):
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer
+    permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
     @extend_schema(
@@ -315,11 +317,12 @@ class GetAllCampaignsView(generics.GenericAPIView):
         
         try:
             all_campaigns_data = contract.functions.getCampaigns().call()
+            op_to_usd_rate = Decimal(get_op_to_usd_rate())
             formatted_campaigns = []
 
             # Process each campaign
             for index, campaign_data in enumerate(all_campaigns_data):
-                formatted_campaign = batch_format_campaign_data(w3, campaign_data)
+                formatted_campaign = batch_format_campaign_data(w3, campaign_data, op_to_usd_rate)  # Pass the rate as an argument
                 formatted_campaign['index'] = index
                 formatted_campaigns.append(formatted_campaign)
 
