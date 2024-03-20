@@ -149,7 +149,12 @@ export function hexToOp(hex: string): string {
     return ethers.utils.formatEther(ethers.BigNumber.from(hex));
 }
 
-async function convertUsdToOp(usdAmount: number) {
+export async function formatUsdToOp(usdAmount: string) {
+    let op = await convertUsdToOp(parseInt(usdAmount));
+    return ethers.utils.parseUnits(op.toString(), 18).toString()
+}
+
+export async function convertUsdToOp(usdAmount: number) {
     try {
         // Fetch the current exchange rate from CoinGecko
         const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=optimism&vs_currencies=usd');
@@ -173,7 +178,7 @@ convertUsdToOp(50).then(opAmount => {
 });
 
 
-async function convertOpToUsd(opAmount: number) {
+export async function convertOpToUsd(opAmount: number) {
     try {
         const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=optimism&vs_currencies=usd');
         const rate = response.data.optimism.usd;
@@ -194,3 +199,16 @@ convertOpToUsd(10).then(usdAmount => {
 }).catch(error => {
     console.error('Conversion error:', error);
 });
+
+
+
+export async function uploadImage(file: any) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await axios.post('/endpoint', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    
+    return response.data.imageUrl; 
+}

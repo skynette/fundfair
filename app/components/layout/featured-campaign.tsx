@@ -13,7 +13,6 @@ import { causeCategoryOption, convertToCampaigns } from "@/lib/utils";
 import Link from "next/link";
 
 export const CampaignItem = (campaign: Campaign) => {
-    console.log(campaign);
     return (
         <div className="flex flex-col shadow-sm justify-end rounded-lg bg-gray-600/0.5">
             {/* <AspectRatio ratio={10 / 7}>

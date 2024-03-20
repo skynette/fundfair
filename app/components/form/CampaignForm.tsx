@@ -12,6 +12,8 @@ import { differenceInDays, format, parseISO } from 'date-fns';
 import { Calendar } from '../ui/calendar';
 
 import { useAddress, useContract, useContractWrite } from "@thirdweb-dev/react";
+import { convertUsdToOp, formatUsdToOp } from '@/lib/utils';
+import { ethers } from 'ethers';
 
 interface CampaignField {
     name: string;
@@ -52,8 +54,13 @@ function CampaignForm() {
 
     const callCreateCampaign = async (formData: CampaignField) => {
         try {
-            const data = await createCampaign({ args: [owner, formData.name, formData.description, formData.target, "1000000000000000000000000", "imageurl", formData.type, formData.category] });
-            console.info("contract call successs", data);
+            const deadlineInSeconds = Math.floor(new Date(formData.deadline).getTime() / 1000);
+            const targetInOp = await formatUsdToOp(formData.target);
+
+            const data = await createCampaign({
+                args: [owner, formData.name, formData.description, targetInOp, deadlineInSeconds, "imageurl", formData.type, formData.category]
+            });
+            console.info("contract call success", data);
         } catch (err) {
             console.error("contract call failure", err);
         }

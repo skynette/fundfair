@@ -1,6 +1,8 @@
+import re
 from web3 import Web3
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
+from .models import Campaign
 
 from .utils import create_verification_code, verify_code
 
@@ -15,19 +17,35 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ('first_name', 'last_name', 'username', 'email', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with that email already exists.")
+        return value
+
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("A user with that username already exists.")
+        
+        # Check if the username contains only letters, numbers, periods, and underscores
+        if not re.match(r'^[\w.]+$', value):
+            raise serializers.ValidationError("Username can only contain letters, numbers, periods, and underscores.")
+        return value
+
     def create(self, validated_data):
+        email = validated_data['email']
+        code = create_verification_code(email)
+        
+        if code == "error":
+            raise serializers.ValidationError("Error sending verification email. Please try again.")
+
         user = User.objects.create_user(
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
             username=validated_data['username'],
-            email=validated_data['email'],
+            email=email,
             password=validated_data['password'],
             is_active=False
         )
-
-        code = create_verification_code(validated_data['email'])
-        if code == "error":
-            raise serializers.ValidationError("Error sending email.")
 
         return user
 
@@ -58,6 +76,7 @@ class EmailVerificationSerializer(serializers.Serializer):
         email = self.validated_data['email']
         user = User.objects.get(email=email)
         user.email_verified = True
+        user.is_active = True
         user.save()
 
 
@@ -96,3 +115,9 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid username or password.")
 
         return user
+    
+
+class CampaignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Campaign
+        exclude = ('donators', 'donations', 'isFundingGoalReached', 'isCampaignClosed', 'amountRaised')
