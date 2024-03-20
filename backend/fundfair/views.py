@@ -220,7 +220,7 @@ class CreateCampaignView(generics.GenericAPIView):
                     campaign_data['owner'],
                     campaign_data['title'],
                     campaign_data['description'],
-                    campaign_data['target'] * 10**18,
+                    campaign_data['target'],
                     int(campaign_data['deadline'].timestamp()),
                     campaign_instance.image.url,
                     campaign_data['fundingModel'],

@@ -7,6 +7,8 @@ from_email = EMAIL_HOST_USER
 
 
 def send_verification_email(email, otp):
+	"""Function to send verification email with OTP."""
+	print("SENDING EMAIL TO: ", email, "WITH OTP: ", otp)
 	context = {
 		"email": email,
 		"otp": otp
@@ -20,5 +22,6 @@ def send_verification_email(email, otp):
 		[email]
 	)
 	email.attach_alternative(html_content, 'text/html')
-	email.send()
+	res = email.send()
+	print("EMAIL SENDING RES:", res)
 	return True
