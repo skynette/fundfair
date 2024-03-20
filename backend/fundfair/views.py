@@ -29,7 +29,7 @@ def setup_web3():
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     # Ensure connection to blockchain
-    if not w3.isConnected():
+    if not w3.is_connected():
         print("NOT CONNECTED")
         return False, False
 
