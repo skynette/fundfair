@@ -10,7 +10,7 @@ class CustomUser(AbstractUser):
 
 class EmailVerification(models.Model):
     code = models.CharField(max_length=6)
-    email = models.EmailField()
+    email = models.CharField(max_length=42)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

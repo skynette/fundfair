@@ -17,6 +17,8 @@ urlpatterns = [
     path('profile/', user_profile_view, name='user_profile_update'),
 
     # campaign
-    path('campaign/', create_campaign_view, name='create_campaign'),
+    path('campaign/create/', create_campaign_view, name='create_campaign'),
+    # path('campaigns/all/', get_all_campaigns_view, name='campaigns'),
     path('campaign/<int:id>/', get_campaign_by_id_view, name='campaign_detail'),
+    # get funders
 ]

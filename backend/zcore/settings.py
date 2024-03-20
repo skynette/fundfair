@@ -32,6 +32,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG') == "True"
+print("DEBUG", DEBUG)
 
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ['https://fundfair.up.railway.app', 'https://www.fundfair.up.railway.app']
@@ -233,6 +234,7 @@ CONTRACT_ADDRESS = os.environ.get('CONTRACT_ADDRESS')
 CONTRACT_OWNER_ADDRESS = os.environ.get('CONTRACT_OWNER_ADDRESS')
 CHAIN_ID = 11155420
 
+COINGECKO_KEY = os.environ.get('COINGECKO_KEY')
 
 CONTRACT_ABI = [
   {

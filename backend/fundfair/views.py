@@ -10,7 +10,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from .utils import format_campaign_data
+from .utils import batch_format_campaign_data, format_campaign_data
 from .models import Campaign
 from .serializers import CampaignSerializer, EmailVerificationSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
 
@@ -29,12 +29,17 @@ def setup_web3():
 
     # Ensure connection to blockchain
     if not w3.isConnected():
-        return False
+        print("NOT CONNECTED")
+        return False, False
 
-    # Load contract
-    contract_address = Web3.toChecksumAddress(settings.CONTRACT_ADDRESS)
-    contract = w3.eth.contract(address=contract_address, abi=settings.CONTRACT_ABI)
-    return w3, contract
+    try:
+        # Load contract
+        contract_address = Web3.toChecksumAddress(settings.CONTRACT_ADDRESS)
+        contract = w3.eth.contract(address=contract_address, abi=settings.CONTRACT_ABI)
+        return w3, contract
+    except Exception as e:
+        print("An error occurred", e)
+        return False, False
 
 
 
@@ -205,6 +210,8 @@ class CreateCampaignView(generics.GenericAPIView):
 
             # Setup web3 connection and load contract
             w3, contract = setup_web3()
+            if not w3 or contract:
+                return Response({"message": "An error occurred while connecting to the blockchain."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             try:
                 # Prepare transaction
@@ -277,6 +284,8 @@ class GetCampaignByIDView(generics.GenericAPIView):
         
         # Setup web3 connection and load contract
         w3, contract = setup_web3()
+        if not w3 or contract:
+                return Response({"message": "An error occurred while connecting to the blockchain."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
             # Fetch campaign data
@@ -292,3 +301,37 @@ class GetCampaignByIDView(generics.GenericAPIView):
         
 
 get_campaign_by_id_view = GetCampaignByIDView.as_view()
+
+
+class GetAllCampaignsView(generics.GenericAPIView):
+    
+    @extend_schema(
+        responses={
+            200: OpenApiResponse(description="Successfully retrieved all campaigns."),
+            500: OpenApiResponse(description="A server error occurred."),
+        },
+        description="Retrieves all campaigns from the blockchain, formats them for the frontend, and includes an index for each."
+    )
+    def get(self, request, *args, **kwargs):
+        # Setup web3 connection and load contract
+        w3, contract = setup_web3()
+        if not w3 or contract:
+                return Response({"message": "An error occurred while connecting to the blockchain."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        try:
+            all_campaigns_data = contract.functions.getCampaigns().call()
+            formatted_campaigns = []
+
+            # Process each campaign
+            for index, campaign_data in enumerate(all_campaigns_data):
+                formatted_campaign = batch_format_campaign_data(w3, campaign_data)
+                formatted_campaign['index'] = index
+                formatted_campaigns.append(formatted_campaign)
+
+            return Response({"success": formatted_campaigns}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+get_all_campaigns_view = GetAllCampaignsView.as_view()
