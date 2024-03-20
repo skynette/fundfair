@@ -227,3 +227,395 @@ cloudinary.config(
 )
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+WALLET_SECRET_KEY = os.environ.get('WALLET_SECRET_KEY')
+CONTRACT_ADDRESS = os.environ.get('CONTRACT_ADDRESS')
+CONTRACT_OWNER_ADDRESS = os.environ.get('CONTRACT_OWNER_ADDRESS')
+CHAIN_ID = 11155420
+
+
+CONTRACT_ABI = [
+  {
+    "type": "constructor",
+    "name": "",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "CampaignClosed",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "campaignId",
+        "indexed": True,
+        "internalType": "uint256"
+      },
+      {
+        "type": "address",
+        "name": "owner",
+        "indexed": True,
+        "internalType": "address"
+      },
+      {
+        "type": "bool",
+        "name": "isSuccessful",
+        "indexed": False,
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "anonymous": False
+  },
+  {
+    "type": "event",
+    "name": "CampaignCreated",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "campaignId",
+        "indexed": True,
+        "internalType": "uint256"
+      },
+      {
+        "type": "address",
+        "name": "owner",
+        "indexed": True,
+        "internalType": "address"
+      },
+      {
+        "type": "string",
+        "name": "title",
+        "indexed": False,
+        "internalType": "string"
+      },
+      {
+        "type": "uint256",
+        "name": "target",
+        "indexed": False,
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "anonymous": False
+  },
+  {
+    "type": "event",
+    "name": "CampaignFunded",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "campaignId",
+        "indexed": True,
+        "internalType": "uint256"
+      },
+      {
+        "type": "address",
+        "name": "donor",
+        "indexed": True,
+        "internalType": "address"
+      },
+      {
+        "type": "uint256",
+        "name": "amount",
+        "indexed": False,
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "anonymous": False
+  },
+  {
+    "type": "function",
+    "name": "campaigns",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "address",
+        "name": "owner",
+        "internalType": "address"
+      },
+      {
+        "type": "string",
+        "name": "title",
+        "internalType": "string"
+      },
+      {
+        "type": "string",
+        "name": "description",
+        "internalType": "string"
+      },
+      {
+        "type": "uint256",
+        "name": "target",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "deadline",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "amountRaised",
+        "internalType": "uint256"
+      },
+      {
+        "type": "string",
+        "name": "image",
+        "internalType": "string"
+      },
+      {
+        "type": "bool",
+        "name": "isFundingGoalReached",
+        "internalType": "bool"
+      },
+      {
+        "type": "bool",
+        "name": "isCampaignClosed",
+        "internalType": "bool"
+      },
+      {
+        "type": "uint8",
+        "name": "fundingModel",
+        "internalType": "enum FundFair.FundingModel"
+      },
+      {
+        "type": "uint8",
+        "name": "category",
+        "internalType": "enum FundFair.CauseCategory"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "closeCampaign",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "_id",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createCampaign",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_owner",
+        "internalType": "address"
+      },
+      {
+        "type": "string",
+        "name": "_title",
+        "internalType": "string"
+      },
+      {
+        "type": "string",
+        "name": "_description",
+        "internalType": "string"
+      },
+      {
+        "type": "uint256",
+        "name": "_target",
+        "internalType": "uint256"
+      },
+      {
+        "type": "uint256",
+        "name": "_deadline",
+        "internalType": "uint256"
+      },
+      {
+        "type": "string",
+        "name": "_image",
+        "internalType": "string"
+      },
+      {
+        "type": "string",
+        "name": "_fundingModel",
+        "internalType": "string"
+      },
+      {
+        "type": "uint8",
+        "name": "_category",
+        "internalType": "enum FundFair.CauseCategory"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": "",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "deployer",
+    "inputs": [],
+    "outputs": [
+      {
+        "type": "address",
+        "name": "",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "fundCampaign",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "_id",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "getCampaigns",
+    "inputs": [],
+    "outputs": [
+      {
+        "type": "tuple[]",
+        "name": "",
+        "components": [
+          {
+            "type": "address",
+            "name": "owner",
+            "internalType": "address"
+          },
+          {
+            "type": "string",
+            "name": "title",
+            "internalType": "string"
+          },
+          {
+            "type": "string",
+            "name": "description",
+            "internalType": "string"
+          },
+          {
+            "type": "uint256",
+            "name": "target",
+            "internalType": "uint256"
+          },
+          {
+            "type": "uint256",
+            "name": "deadline",
+            "internalType": "uint256"
+          },
+          {
+            "type": "uint256",
+            "name": "amountRaised",
+            "internalType": "uint256"
+          },
+          {
+            "type": "string",
+            "name": "image",
+            "internalType": "string"
+          },
+          {
+            "type": "address[]",
+            "name": "donators",
+            "internalType": "address[]"
+          },
+          {
+            "type": "uint256[]",
+            "name": "donations",
+            "internalType": "uint256[]"
+          },
+          {
+            "type": "bool",
+            "name": "isFundingGoalReached",
+            "internalType": "bool"
+          },
+          {
+            "type": "bool",
+            "name": "isCampaignClosed",
+            "internalType": "bool"
+          },
+          {
+            "type": "uint8",
+            "name": "fundingModel",
+            "internalType": "enum FundFair.FundingModel"
+          },
+          {
+            "type": "uint8",
+            "name": "category",
+            "internalType": "enum FundFair.CauseCategory"
+          }
+        ],
+        "internalType": "struct FundFair.Campaign[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getFunders",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "_id",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "address[]",
+        "name": "",
+        "internalType": "address[]"
+      },
+      {
+        "type": "uint256[]",
+        "name": "",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "numberOfCampaigns",
+    "inputs": [],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": "",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "withdraw",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "_campaignId",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  }
+]

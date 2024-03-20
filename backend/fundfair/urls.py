@@ -16,8 +16,8 @@ urlpatterns = [
     # user profile
     path('profile/', user_profile_view, name='user_profile_update'),
 
-    # image upload
-    path('upload/', image_upload_view, name='image_upload'),
+    # campaign
+    path('campaign/', create_campaign_view, name='create_campaign'),
 
     
 ]

@@ -1,7 +1,7 @@
 from web3 import Web3
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
-from .models import ImageUpload
+from .models import Campaign
 
 from .utils import create_verification_code, verify_code
 
@@ -97,8 +97,9 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid username or password.")
 
         return user
+    
 
-class ImageUploadSerializer(serializers.ModelSerializer):
+class CampaignSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ImageUpload
-        fields = ('id', 'image')
+        model = Campaign
+        exclude = ('donators', 'donations', 'isFundingGoalReached', 'isCampaignClosed', 'amountRaised')

@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import generics
@@ -8,20 +10,32 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from .serializers import EmailVerificationSerializer, ImageUploadSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
+from .models import Campaign
 
-# from thirdweb import ThirdwebSDK
-# from thirdweb.types import SDKOptions
+from .serializers import CampaignSerializer, EmailVerificationSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
 
+from web3 import Web3
+from web3.middleware import geth_poa_middleware
 
-# sdk = ThirdwebSDK("op-sepolia-testnet", options=SDKOptions(secret_key="YOUR_SECRET_KEY"))
-# contract = sdk.get_contract("0x964C12A4c0bbFB49Ba18bFD02A5332D37D3083d2")
-
-
-# # to create a campaign
-# data = contract.call("createCampaign", _owner, _title, _description, _target, _deadline, _image, _fundingModel, _category)
 
 User = get_user_model()
+
+
+def setup_web3():
+    """Setup web3 connection and load contract."""
+    RPC_URL = "https://sepolia.optimism.io"
+    w3 = Web3(Web3.HTTPProvider(RPC_URL))
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+
+    # Ensure connection to blockchain
+    if not w3.isConnected():
+        return False
+
+    # Load contract
+    contract_address = Web3.toChecksumAddress(settings.CONTRACT_ADDRESS)
+    contract = w3.eth.contract(address=contract_address, abi=settings.CONTRACT_ABI)
+    return w3, contract
+
 
 
 class UserRegistrationView(generics.GenericAPIView):
@@ -161,15 +175,75 @@ class UserProfileView(generics.RetrieveAPIView):
 user_profile_view = UserProfileView.as_view()
 
 
-class ImageUploadView(generics.GenericAPIView):
-    serializer_class = ImageUploadSerializer
+class CreateCampaignView(generics.GenericAPIView):
+    queryset = Campaign.objects.all()
+    serializer_class = CampaignSerializer
+    parser_classes = (MultiPartParser, FormParser)
 
-    def post(self, request, format=None):
-        serializer = ImageUploadSerializer(data=request.data)
+    @extend_schema(
+        request=CampaignSerializer,
+        responses={
+            status.HTTP_201_CREATED: OpenApiResponse(
+                description="Campaign successfully created and linked to the user's blockchain wallet address.",
+                response=CampaignSerializer
+            ),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                description="Invalid data submitted. Required fields may be missing or contain incorrect values."
+            ),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: OpenApiResponse(
+                description="An error occurred while creating the campaign on the blockchain or within the application."
+            )
+        },
+        description="Creates a new campaign and links it to the user's blockchain wallet address. The endpoint expects details of the campaign such as title, description, target amount, etc., in the request body. It also interacts with the blockchain to create the campaign there."
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+            self.perform_create(serializer)
+            campaign_data = serializer.validated_data
+            campaign_instance = serializer.instance
 
-image_upload_view = ImageUploadView.as_view()
+            # Setup web3 connection and load contract
+            w3, contract = setup_web3()
+
+            try:
+                # Prepare transaction
+                transaction = contract.functions.createCampaign(
+                    campaign_data['owner'],
+                    campaign_data['title'],
+                    campaign_data['description'],
+                    campaign_data['target'] * 10**18,
+                    int(campaign_data['deadline'].timestamp()),
+                    campaign_instance.image.url,
+                    campaign_data['fundingModel'],
+                    campaign_data['category']
+                ).buildTransaction({
+                    'chainId': settings.CHAIN_ID,
+                    'gas': 2000000,
+                    'nonce': w3.eth.getTransactionCount(settings.CONTRACT_OWNER_ADDRESS),
+                })
+
+                signed_txn = w3.eth.account.signTransaction(transaction, private_key=settings.WALLET_SECRET_KEY)
+
+                # Send transaction
+                txn_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+                txn_receipt = w3.eth.waitForTransactionReceipt(txn_hash)
+
+                return Response({
+                        "success": serializer.data, 
+                        "message": "Campaign successfully created and linked to the user's blockchain wallet address.",
+                        "transaction_hash": txn_hash.hex(),
+                    }, status=status.HTTP_201_CREATED)
+
+            except Exception as e:
+                print("Error: ", e)
+                return Response({"message": "An error occurred while creating the campaign on the blockchain."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+create_campaign_view = CreateCampaignView.as_view()

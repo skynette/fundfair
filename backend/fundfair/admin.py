@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import CustomUser, EmailVerification
+from .models import Campaign, CustomUser, EmailVerification
 
 class CustomUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
@@ -46,5 +46,9 @@ class EmailVerificationAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 # Register your models here.
+admin.site.register(Campaign)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(EmailVerification, EmailVerificationAdmin)
+admin.site.site_header = "FundFair Admin"
+admin.site.site_title = "FundFair Admin Portal"
+admin.site.index_title = "Welcome to FundFair Admin Portal"
