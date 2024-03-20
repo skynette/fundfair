@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.conf import settings
 
@@ -10,7 +11,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from .utils import batch_format_campaign_data, format_campaign_data
+from .utils import batch_format_campaign_data, format_campaign_data, get_op_to_usd_rate
 from .models import Campaign
 from .serializers import CampaignSerializer, EmailVerificationSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
 
@@ -28,7 +29,7 @@ def setup_web3():
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     # Ensure connection to blockchain
-    if not w3.isConnected():
+    if not w3.is_connected():
         print("NOT CONNECTED")
         return False, False
 
@@ -36,6 +37,7 @@ def setup_web3():
         # Load contract
         contract_address = Web3.toChecksumAddress(settings.CONTRACT_ADDRESS)
         contract = w3.eth.contract(address=contract_address, abi=settings.CONTRACT_ABI)
+        print("w3", w3, "contract", contract)
         return w3, contract
     except Exception as e:
         print("An error occurred", e)
@@ -183,6 +185,7 @@ user_profile_view = UserProfileView.as_view()
 class CreateCampaignView(generics.GenericAPIView):
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer
+    permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
     @extend_schema(
@@ -210,8 +213,6 @@ class CreateCampaignView(generics.GenericAPIView):
 
             # Setup web3 connection and load contract
             w3, contract = setup_web3()
-            if not w3 or contract:
-                return Response({"message": "An error occurred while connecting to the blockchain."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             try:
                 # Prepare transaction
@@ -219,8 +220,8 @@ class CreateCampaignView(generics.GenericAPIView):
                     campaign_data['owner'],
                     campaign_data['title'],
                     campaign_data['description'],
-                    campaign_data['target'] * 10**18,
-                    int(campaign_data['deadline'].timestamp()),
+                    campaign_data['target'],
+                    campaign_data['deadline'],
                     campaign_instance.image.url,
                     campaign_data['fundingModel'],
                     campaign_data['category']
@@ -284,8 +285,6 @@ class GetCampaignByIDView(generics.GenericAPIView):
         
         # Setup web3 connection and load contract
         w3, contract = setup_web3()
-        if not w3 or contract:
-                return Response({"message": "An error occurred while connecting to the blockchain."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
             # Fetch campaign data
@@ -315,16 +314,15 @@ class GetAllCampaignsView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         # Setup web3 connection and load contract
         w3, contract = setup_web3()
-        if not w3 or contract:
-                return Response({"message": "An error occurred while connecting to the blockchain."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         try:
             all_campaigns_data = contract.functions.getCampaigns().call()
+            op_to_usd_rate = Decimal(get_op_to_usd_rate())
             formatted_campaigns = []
 
             # Process each campaign
             for index, campaign_data in enumerate(all_campaigns_data):
-                formatted_campaign = batch_format_campaign_data(w3, campaign_data)
+                formatted_campaign = batch_format_campaign_data(w3, campaign_data, op_to_usd_rate)  # Pass the rate as an argument
                 formatted_campaign['index'] = index
                 formatted_campaigns.append(formatted_campaign)
 

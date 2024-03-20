@@ -10,7 +10,7 @@ pillow
 gunicorn==20.0.4
 six==1.16.0
 pytz
-web3
+web3==5.31.4
 django-cors-headers
 whitenoise
 requests

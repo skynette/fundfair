@@ -28,7 +28,7 @@ class Campaign(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     target = models.BigIntegerField()
-    deadline = models.DateTimeField()
+    deadline = models.CharField(max_length=255)
     amountRaised = models.BigIntegerField(default=0)
     image = models.ImageField(upload_to='campaign_images/')
     donators = models.JSONField(default=list, blank=True)

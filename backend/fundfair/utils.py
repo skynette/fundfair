@@ -62,7 +62,7 @@ def verify_code(email, code):
 def get_op_to_usd_rate():
     """Fetches the current conversion rate from Optimism (OP) to USD."""
     try:
-        response = requests.get(f"https://pro-api.coingecko.com/api/v3/simple/price?ids=optimism&x_cg_pro_api_key={settings.COINGECKO_KEY}")
+        response = requests.get(f"https://api.coingecko.com/api/v3/simple/price?ids=optimism&vs_currencies=usd")
         response.raise_for_status()  # Raises stored HTTPError, if one occurred
         rate = response.json().get('optimism', {}).get('usd', 0)
         return rate
@@ -114,7 +114,7 @@ def safe_extract_big_number(w3, value):
     return Decimal(w3.fromWei(value, 'ether'))
 
 
-def batch_format_campaign_data(w3, campaigns_data):
+def batch_format_campaign_data(w3, campaign_data, op_to_usd_rate):
     """Formats the raw campaign data from an array of campaigns coming from a smart contract into a more user-friendly format.
 
     Args:
@@ -124,46 +124,50 @@ def batch_format_campaign_data(w3, campaigns_data):
     Returns:
     A list of dictionaries, each containing formatted campaign information.
     """
-    print("campaigns_data", campaign_data)
-    op_to_usd_rate = Decimal(get_op_to_usd_rate())
-    formatted_campaigns = []
-    
-    if not isinstance(campaigns_data, list):
-        return {"error": "Expected a list of campaigns"}
-    
-    for campaign_data in campaigns_data:
-        if not isinstance(campaign_data, dict):
-            continue 
+    if not isinstance(campaign_data, tuple) or len(campaign_data) < 12:
+        return {"error": "Invalid campaign data format"}
 
-        target = safe_extract_big_number(w3, campaign_data['target'])
-        amount_raised = safe_extract_big_number(w3, campaign_data['amountRaised'])
+    (
+        owner, title, description, target, deadline, 
+        amount_raised, image, donators, donations, 
+        isFundingGoalReached, isCampaignClosed, fundingModel, category
+    ) = campaign_data
 
-        donations_wei = campaign_data['donations'] if 'donations' in campaign_data and isinstance(campaign_data['donations'], list) else []
-        donations = [safe_extract_big_number(w3, donation) for donation in donations_wei]
-        donations_usd = [float(donation) * op_to_usd_rate for donation in donations]
+    # Convert from Wei to Ether
+    wei_to_ether = Decimal(10**18)
+    target_eth = Decimal(target) / wei_to_ether
+    amount_raised_eth = Decimal(amount_raised) / wei_to_ether
+    donations_eth = [Decimal(donation) / wei_to_ether for donation in donations]
 
-        formatted_data = {
-            "owner": campaign_data['owner'],
-            "title": campaign_data['title'],
-            "description": campaign_data['description'],
-            "target": float(target),
-            "targetInUsd": float(target) * op_to_usd_rate,
-            "deadline": datetime.datetime.utcfromtimestamp(campaign_data['deadline']).strftime('%Y-%m-%d %H:%M:%S'),
-            "amountRaised": float(amount_raised),
-            "amountRaisedUSD": float(amount_raised) * op_to_usd_rate,
-            "image": campaign_data['image'],
-            "isFundingGoalReached": campaign_data['isFundingGoalReached'],
-            "isCampaignClosed": campaign_data['isCampaignClosed'],
-            "fundingModel": campaign_data['fundingModel'],
-            "category": campaign_data['category'],
-            "donators": campaign_data['donators'] if 'donators' in campaign_data and isinstance(campaign_data['donators'], list) else [],
-            "donations": [float(donation) for donation in donations],
-            "donationsUSD": donations_usd,
-            "totalDonated": float(sum(donations)),
-            "totalDonatedUSD": float(sum(donations_usd)),
-            "totalDonators": len(campaign_data['donators']) if 'donators' in campaign_data and isinstance(campaign_data['donators'], list) else 0,
-        }
+    # Ensure op_to_usd_rate is a Decimal
+    op_to_usd_rate = Decimal(op_to_usd_rate)
 
-        formatted_campaigns.append(formatted_data)
+    # Now convert Ether values to USD
+    target_usd = float(target_eth * op_to_usd_rate)
+    amount_raised_usd = float(amount_raised_eth * op_to_usd_rate)
+    donations_usd = [float(donation_eth * op_to_usd_rate) for donation_eth in donations_eth]
 
-    return formatted_campaigns
+    # Format the data into a dictionary
+    formatted_data = {
+        "owner": owner,
+        "title": title,
+        "description": description,
+        "target": float(target_eth),
+        "targetInUsd": target_usd,
+        # "deadline": datetime.datetime.utcfromtimestamp(deadline).strftime('%Y-%m-%d %H:%M:%S'),
+        "amountRaised": float(amount_raised_eth),
+        "amountRaisedUSD": amount_raised_usd,
+        "image": image,
+        "isFundingGoalReached": isFundingGoalReached,
+        "isCampaignClosed": isCampaignClosed,
+        "fundingModel": fundingModel,
+        "category": category,
+        "donators": donators,
+        "donations": [float(donation_eth) for donation_eth in donations_eth],
+        "donationsUSD": donations_usd,
+        "totalDonated": sum([float(donation_eth) for donation_eth in donations_eth]),
+        "totalDonatedUSD": sum(donations_usd),
+        "totalDonators": len(donators),
+    }
+
+    return formatted_data

@@ -1,6 +1,6 @@
 'use client';
 
-import { ConnectWallet, useAddress, useDisconnect } from "@thirdweb-dev/react";
+import { ConnectWallet, useAddress, useDisconnect, useNetworkMismatch } from "@thirdweb-dev/react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { Menu } from "lucide-react";
@@ -14,6 +14,15 @@ import { useEffect, useState } from "react";
 const Navbar = () => {
     const { auth } = useAuth();
     const [client, setClient] = useState(false);
+
+    const isMismatched = useNetworkMismatch();
+
+    // function to change the network
+    const changeNetwork = () => {
+        if (isMismatched) {
+            // change the network
+        }
+    }
 
     const address = useAddress();
     const disconnect = useDisconnect();
