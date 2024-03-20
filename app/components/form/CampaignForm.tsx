@@ -71,7 +71,7 @@ function CampaignForm() {
         mutationFn: (req: CampaignRequest) => createCampaign(req),
         onSuccess(data, variables, context) {
             toast.success(`Campaign ${data.title} has been created`);
-            router.back();
+            router.push("/dashboard/campaign");
         },
         onError(error, variables, context) {
             if (error.response?.status === 400) {
