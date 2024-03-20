@@ -27,7 +27,7 @@ const EmailVerification = () => {
     useEffect(() => {
         if (isSuccess) {
             toast.success('Email verified successfully')
-            router.replace('/auth/login');
+            router.replace('/auth/signin');
         }
     }, [data, isSuccess, router]);
 
