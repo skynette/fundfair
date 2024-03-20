@@ -7,7 +7,7 @@ import { Button } from '../ui/button';
 import FormikControl from '../form-controls/FormikControl';
 import { useMutation } from '@tanstack/react-query';
 import SigninRequest from '@/lib/network/auth/SigninRequest';
-import SignupResponse from '@/lib/network/auth/AuthResponse';
+import AuthResponse from '@/lib/network/auth/AuthResponse';
 import { AxiosError } from 'axios';
 import { signin } from '@/lib/api/auth/endpoint';
 import useAuth from '@/lib/hooks/useAuth';
@@ -25,7 +25,7 @@ const validationSchema = Yup.object().shape({
 function SigninForm() {
     const router = useRouter();
     const { setAuth } = useAuth();
-    const { mutate, isPending } = useMutation<SignupResponse, AxiosError, SigninRequest>({
+    const { mutate, isPending } = useMutation<AuthResponse, AxiosError, SigninRequest>({
         mutationFn: (request: SigninRequest) => signin(request),
         onSuccess(data, variables, context) {
             toast.success('Login successful!');
@@ -33,8 +33,9 @@ function SigninForm() {
             router.push('/');
         },
         onError(error, variables, context) {
+            console.log(error.response);
             // @ts-ignore
-            toast.error(error.response?.data.detail);
+            toast.error(error.response?.data);
         },
     });
 
