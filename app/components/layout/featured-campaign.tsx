@@ -9,26 +9,27 @@ import { Button } from "../ui/button";
 
 import { useContract, useContractRead } from "@thirdweb-dev/react";
 import { Campaign, BigNumber, FundingModel, CauseCategory } from "../../lib/types";
-import { convertToCampaigns } from "@/lib/utils";
+import { causeCategoryOption, convertToCampaigns } from "@/lib/utils";
+import Link from "next/link";
 
 export const CampaignItem = (campaign: Campaign) => {
     return (
-        <div className="flex flex-col shadow-sm rounded-lg bg-gray-600/0.5">
-            <AspectRatio ratio={10 / 7}>
-                <Image src='https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&dpr=2&q=80'
+        <div className="flex flex-col shadow-sm justify-end rounded-lg bg-gray-600/0.5">
+            {/* <AspectRatio ratio={10 / 7}>
+                <Image src={campaign.image}
                     alt=""
                     fill
                     className="rounded-md object-cover" />
-            </AspectRatio>
+            </AspectRatio> */}
 
             <div className="flex flex-col p-2">
                 <div className="flex items-start py-2 space-x-2 text-gray-500">
                     <FolderSimple size={24} />
-                    <p className="text-sm translate-y-1">Education</p>
+                    <p className="text-sm translate-y-1">{causeCategoryOption[campaign.category].option}</p>
                 </div>
 
-                <p className="font-semibold text-base leading-5 text-black md:leading-normal lg:text-lg">Powered Kits Learning Boxes</p>
-                <p className="text-sm text-gray-500">Together we can create access for everyone!</p>
+                <p className="font-semibold leading-5 text-black md:leading-normal">{campaign.title}</p>
+                <p className="text-sm text-gray-500 line-clamp-3">{campaign.description}</p>
 
                 <div className="grid grid-cols-3 my-2">
                     <div className="flex flex-col">
@@ -47,9 +48,11 @@ export const CampaignItem = (campaign: Campaign) => {
                     </div>
                 </div>
 
-                <Button className='w-fit' size='sm'>
-                    Donate
-                </Button>
+                <Link href={`/campaign/${campaign.owner}`} legacyBehavior passHref>
+                    <Button className='w-fit' size='sm'>
+                        Donate
+                    </Button>
+                </Link>
 
                 {/* <div className="flex items-center space-x-2">
                     <Avatar>

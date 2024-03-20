@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { Campaign } from "./types";
 import { ethers } from "ethers";
 import axios from 'axios'
+import { SelectOptions } from "@/components/form-controls/FormikControl";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -20,6 +21,84 @@ export const queryClientOptions = {
 export const userLoggedIn = (user: any) => {
     return Object.keys(user ?? {}).length > 0;
 }
+
+export const typeOptions: SelectOptions[] = [
+    {
+        option: 'Fixed',
+        value: 'Fixed'
+    },
+    {
+        option: 'Flexible',
+        value: 'Flexible'
+    },
+]
+
+export const causeCategoryOption: SelectOptions[] = [
+    {
+        option: 'Health and Medicine',
+        value: 0
+    },
+    {
+        option: 'Environment and Wildlife',
+        value: 1
+    },
+    {
+        option: 'Education and Research',
+        value: 2
+    },
+    {
+        option: 'Poverty and Human Services',
+        value: 3
+    },
+    {
+        option: 'Arts Culture and Humanities',
+        value: 4
+    },
+    {
+        option: 'Children and Youth',
+        value: 5
+    },
+    {
+        option: 'Diaster Relief and Emergency Response',
+        value: 6
+    },
+    {
+        option: 'Animal Welfare',
+        value: 7
+    },
+    {
+        option: 'Community and Civic Projects',
+        value: 8
+    },
+    {
+        option: 'Technology and Innovation',
+        value: 9
+    },
+    {
+        option: 'Veterans and Military Families',
+        value: 10
+    },
+    {
+        option: 'Human Rights and Social Justice',
+        value: 11
+    },
+    {
+        option: 'International Aid and Development',
+        value: 12
+    },
+    {
+        option: 'Faith Based and Religious',
+        value: 13
+    },
+    {
+        option: 'Sports and Recreation',
+        value: 14
+    },
+    {
+        option: 'Mental Health and Wellness',
+        value: 15
+    },
+]
 
 
 /**

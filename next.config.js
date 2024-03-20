@@ -11,7 +11,7 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: 'media.avarchives.icrc.org',
+                hostname: 'media.licdn.com',
             }
         ]
     }
