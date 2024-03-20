@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '../ui/button';
 import FormikControl, { SelectOptions } from '../form-controls/FormikControl';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { cn } from '@/lib/utils';
+import { causeCategoryOption, cn, typeOptions } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import { Calendar } from '../ui/calendar';
 
@@ -58,84 +58,6 @@ function CampaignForm() {
             console.error("contract call failure", err);
         }
     }
-
-    const causeCategoryOption: SelectOptions[] = [
-        {
-            option: 'Health and Medicine',
-            value: 0
-        },
-        {
-            option: 'Environment and Wildlife',
-            value: 1
-        },
-        {
-            option: 'Education and Research',
-            value: 2
-        },
-        {
-            option: 'Poverty and Human Services',
-            value: 3
-        },
-        {
-            option: 'Arts Culture and Humanities',
-            value: 4
-        },
-        {
-            option: 'Children and Youth',
-            value: 5
-        },
-        {
-            option: 'Diaster Relief and Emergency Response',
-            value: 6
-        },
-        {
-            option: 'Animal Welfare',
-            value: 7
-        },
-        {
-            option: 'Community and Civic Projects',
-            value: 8
-        },
-        {
-            option: 'Technology and Innovation',
-            value: 9
-        },
-        {
-            option: 'Veterans and Military Families',
-            value: 10
-        },
-        {
-            option: 'Human Rights and Social Justice',
-            value: 11
-        },
-        {
-            option: 'International Aid and Development',
-            value: 12
-        },
-        {
-            option: 'Faith Based and Religious',
-            value: 13
-        },
-        {
-            option: 'Sports and Recreation',
-            value: 14
-        },
-        {
-            option: 'Mental Health and Wellness',
-            value: 15
-        },
-    ]
-
-    const typeOptions: SelectOptions[] = [
-        {
-            option: 'Fixed',
-            value: 'Fixed'
-        },
-        {
-            option: 'Flexible',
-            value: 'Flexible'
-        },
-    ]
 
     return (
         <Formik

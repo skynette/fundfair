@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import { Button } from '../ui/button';
 import FormikControl from '../form-controls/FormikControl';
 import { useMutation } from '@tanstack/react-query';
-import SignupResponse from '@/lib/network/auth/AuthResponse';
 import SignupRequest from '@/lib/network/auth/SignupRequest';
 import { signup } from '@/lib/api/auth/endpoint';
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
+import AuthResponse from '@/lib/network/auth/AuthResponse';
 
 interface SignupField {
+    fullname: string;
     username: string;
     email: string;
     password: string;
@@ -19,6 +20,8 @@ interface SignupField {
 }
 
 const validationSchema = Yup.object().shape({
+    fullname: Yup.string().required('Fullname is required').trim()
+        .matches(/^[a-zA-Z]+(\s[a-zA-Z]+)+$/, 'Invalid full name format. Please enter first name and last name.'),
     username: Yup.string().required('User name is required').trim(),
     email: Yup.string().required('Email is required').email('Provide a valid email address'),
     password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
@@ -27,18 +30,23 @@ const validationSchema = Yup.object().shape({
 
 function SignupForm() {
     const router = useRouter();
-    const { data, isPending, isSuccess, isError, error, mutate } = useMutation<SignupResponse, AxiosError, SignupRequest>({
+    const { data, isPending, isSuccess, isError, error, mutate } = useMutation<AuthResponse, AxiosError, SignupRequest>({
         mutationFn: (request: SignupRequest) => signup(request),
         onSuccess(data, variables, context) {
-            router.push('/auth/email-verification');
+            router.push(`/auth/email-verification?email=${variables.email}`);
         },
         onError(error, variables, context) {
             // @ts-ignore
-            Object.entries(error.response?.data).forEach(err => toast.error(err[1][0]));
+            if (error.response?.status < 500) {
+                // @ts-ignore
+                Object.entries(error.response?.data).forEach(err => toast.error(err[1][0]));
+            }
+
         },
     });
 
     const initialValues: SignupField = {
+        fullname: '',
         username: '',
         email: '',
         password: '',
@@ -51,6 +59,8 @@ function SignupForm() {
             validationSchema={validationSchema}
             onSubmit={(field) => {
                 mutate({
+                    first_name: field.fullname.split(' ')[0],
+                    last_name: field.fullname.split(' ')[1],
                     username: field.username,
                     email: field.email,
                     password: field.password
@@ -60,6 +70,13 @@ function SignupForm() {
                 () => (
                     <Form className='px-4 py-8'>
                         <div className='flex flex-col space-y-3'>
+                            <FormikControl
+                                label='Full name'
+                                name='fullname'
+                                type='text'
+                                control='input'
+                            />
+
                             <FormikControl
                                 label='User name'
                                 name='username'
