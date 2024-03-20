@@ -62,7 +62,7 @@ def verify_code(email, code):
 def get_op_to_usd_rate():
     """Fetches the current conversion rate from Optimism (OP) to USD."""
     try:
-        response = requests.get(f"https://pro-api.coingecko.com/api/v3/simple/price?ids=optimism&x_cg_pro_api_key={settings.COINGECKO_KEY}")
+        response = requests.get(f"https://api.coingecko.com/api/v3/simple/price?ids=optimism&vs_currencies=usd")
         response.raise_for_status()  # Raises stored HTTPError, if one occurred
         rate = response.json().get('optimism', {}).get('usd', 0)
         return rate

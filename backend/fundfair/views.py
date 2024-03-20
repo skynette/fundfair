@@ -36,6 +36,7 @@ def setup_web3():
         # Load contract
         contract_address = Web3.toChecksumAddress(settings.CONTRACT_ADDRESS)
         contract = w3.eth.contract(address=contract_address, abi=settings.CONTRACT_ABI)
+        print("w3", w3, "contract", contract)
         return w3, contract
     except Exception as e:
         print("An error occurred", e)
@@ -210,8 +211,6 @@ class CreateCampaignView(generics.GenericAPIView):
 
             # Setup web3 connection and load contract
             w3, contract = setup_web3()
-            if not w3 or contract:
-                return Response({"message": "An error occurred while connecting to the blockchain."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             try:
                 # Prepare transaction
@@ -284,8 +283,6 @@ class GetCampaignByIDView(generics.GenericAPIView):
         
         # Setup web3 connection and load contract
         w3, contract = setup_web3()
-        if not w3 or contract:
-                return Response({"message": "An error occurred while connecting to the blockchain."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
             # Fetch campaign data
@@ -315,8 +312,6 @@ class GetAllCampaignsView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         # Setup web3 connection and load contract
         w3, contract = setup_web3()
-        if not w3 or contract:
-                return Response({"message": "An error occurred while connecting to the blockchain."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         try:
             all_campaigns_data = contract.functions.getCampaigns().call()
