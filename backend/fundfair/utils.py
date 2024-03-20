@@ -171,3 +171,19 @@ def batch_format_campaign_data(w3, campaign_data, op_to_usd_rate):
     }
 
     return formatted_data
+
+
+def ether_to_wei(ether_str):
+    """
+    Convert an Ether value given as a string to Wei.
+    
+    Args:
+    ether_str (str): The Ether value as a string.
+    
+    Returns:
+    int: The corresponding value in Wei.
+    """
+    # Convert string to a float, then multiply by 10^18 and convert to int
+    ether_value = float(ether_str)
+    wei_value = int(ether_value * 1e18)
+    return wei_value

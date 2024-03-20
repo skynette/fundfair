@@ -11,7 +11,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from .utils import batch_format_campaign_data, format_campaign_data, get_op_to_usd_rate
+from .utils import batch_format_campaign_data, ether_to_wei, format_campaign_data, get_op_to_usd_rate
 from .models import Campaign
 from .serializers import CampaignSerializer, EmailVerificationSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
 
@@ -213,15 +213,15 @@ class CreateCampaignView(generics.GenericAPIView):
 
             # Setup web3 connection and load contract
             w3, contract = setup_web3()
-
             try:
                 # Prepare transaction
+                target = ether_to_wei(campaign_data['target'])
                 transaction = contract.functions.createCampaign(
                     campaign_data['owner'],
                     campaign_data['title'],
                     campaign_data['description'],
-                    campaign_data['target'],
-                    campaign_data['deadline'],
+                    target,
+                    int(campaign_data['deadline']),
                     campaign_instance.image.url,
                     campaign_data['fundingModel'],
                     campaign_data['category']
