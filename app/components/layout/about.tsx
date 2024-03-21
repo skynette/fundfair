@@ -68,7 +68,7 @@ const AboutItem2 = ({ title, desc }: AboutItemInterface) => {
 const About = () => {
     return (
         <div className="flex flex-col space-y-12">
-            <div className="container grid grid-cols-1 lg:gap-x-20 lg:grid-cols-[2fr_1.5fr]">
+            <div className="container grid gap-y-2 grid-cols-1 lg:gap-y-0 lg:gap-x-20 lg:grid-cols-[2fr_1.5fr]">
                 <div className="flex flex-col w-full">
                     <h1 className="capitalize text-xl leading-relaxed font-bold lg:text-3xl">impactful <span className="border-b-4 border-b-yellow-500">giving platform</span> from fundraising hub</h1>
                     <p className="text-gray-600 text-sm mt-4 mb-6">
