@@ -150,17 +150,17 @@ export function hexToOp(hex: string): string {
 }
 
 export async function formatUsdToOp(usdAmount: string) {
-    let op = await convertUsdToOp(parseInt(usdAmount));
-    return ethers.utils.parseUnits(op.toString(), 18).toString()
+    let eth = await convertUsdToOp(parseInt(usdAmount));
+    return ethers.utils.parseUnits(eth.toString(), 18).toString()
 }
 
 export async function convertUsdToOp(usdAmount: number) {
     try {
         // Fetch the current exchange rate from CoinGecko
-        const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=optimism&vs_currencies=usd');
-        const rate = response.data.optimism.usd; // The current price of 1 OP in USD
+        const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+        const rate = response.data.ethereum.usd; // The current price of 1 ETH in USD
 
-        // Convert the USD amount to OP
+        // Convert the USD amount to ETH
         const opAmount = usdAmount / rate;
 
         return opAmount;
@@ -170,21 +170,13 @@ export async function convertUsdToOp(usdAmount: number) {
     }
 }
 
-// Example usage:
-convertUsdToOp(50).then(opAmount => {
-    console.log(`$50 is approximately ${opAmount} OP`);
-}).catch(error => {
-    console.error('Conversion error:', error);
-});
-
-
-export async function convertOpToUsd(opAmount: number) {
+export async function convertOpToUsd(ethAmount: number) {
     try {
-        const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=optimism&vs_currencies=usd');
-        const rate = response.data.optimism.usd;
+        const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+        const rate = response.data.ethereum.usd;
 
-        // Convert the OP amount to USD
-        const usdAmount = opAmount * rate;
+        // Convert the ETH amount to USD
+        const usdAmount = ethAmount * rate;
 
         return usdAmount;
     } catch (error) {
@@ -192,15 +184,6 @@ export async function convertOpToUsd(opAmount: number) {
         throw error;
     }
 }
-
-// Example usage:
-convertOpToUsd(10).then(usdAmount => {
-    console.log(`3012 OP is approximately $${usdAmount}`);
-}).catch(error => {
-    console.error('Conversion error:', error);
-});
-
-
 
 export async function uploadImage(file: any) {
     const formData = new FormData();
