@@ -8,13 +8,16 @@ import { nanoid } from 'nanoid';
 import { Button } from "../ui/button";
 
 import { useContract, useContractRead } from "@thirdweb-dev/react";
-import { Campaign, BigNumber, FundingModel, CauseCategory } from "../../lib/types";
+import { BigNumber, FundingModel, CauseCategory } from "../../lib/types";
 import { causeCategoryOption, convertToCampaigns } from "@/lib/utils";
 import Link from "next/link";
 import SpinLoader from "../ui/loader";
+import Empty from "../ui/empty";
+import { useQuery } from "@tanstack/react-query";
+import { getAllCampaigns } from "@/lib/api/campaign/endpoint";
+import { Campaign } from "@/lib/network/campaign/CampaignResponse";
 
 export const CampaignItem = (campaign: Campaign) => {
-    console.log(campaign);
     return (
         <div className="flex flex-col shadow-sm justify-end rounded-lg bg-gray-600/0.5">
             <AspectRatio ratio={10 / 7}>
@@ -35,22 +38,22 @@ export const CampaignItem = (campaign: Campaign) => {
 
                 <div className="grid grid-cols-3 my-2">
                     <div className="flex flex-col">
-                        <p className="text-sm font-medium lg:font-semibold lg:text-base">{campaign.target}</p>
+                        <p className="text-sm font-medium">{campaign.target.toFixed(2)}</p>
                         <p className="text-gray-500 text-sm">Target (USD)</p>
                     </div>
 
                     <div className="flex flex-col">
-                        <p className="text-sm font-medium lg:font-semibold lg:text-base">{campaign.amountRaised}</p>
+                        <p className="text-sm font-medium">{campaign.amountRaised.toFixed(2)}</p>
                         <p className="text-gray-500 text-sm">Raised (USD)</p>
                     </div>
 
                     <div className="flex flex-col">
-                        <p className="text-sm font-medium lg:font-semibold lg:text-base">{campaign.donators.length}</p>
+                        <p className="text-sm font-medium">{campaign.donators.length}</p>
                         <p className="text-gray-500 text-sm">Donators</p>
                     </div>
                 </div>
 
-                <Link href={`/campaign/${campaign.owner}`} legacyBehavior passHref>
+                <Link href={`/campaign/${campaign.index}`} legacyBehavior passHref>
                     <Button className='w-fit' size='sm'>
                         Donate
                     </Button>
@@ -61,19 +64,26 @@ export const CampaignItem = (campaign: Campaign) => {
 }
 
 const FeaturedCampaign = () => {
-    const { contract } = useContract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
-    const { data: allCampaigns, isSuccess, isLoading, isError } = useContractRead(contract, "getCampaigns");
+    const { data: allCampaigns, isSuccess, isLoading, isError } = useQuery({
+        queryKey: ['all-campaigns'],
+        queryFn: getAllCampaigns
+    });
 
     if (isLoading && !isError) {
         return <SpinLoader message='Fetching featured campaigns' />;
     }
+
+    if (isSuccess && !isLoading && allCampaigns?.success?.length === 0)
+        return <Empty />;
+
+    console.log(allCampaigns);
 
     return (
         <div className="container flex flex-col space-y-2 py-6 lg:py-12">
             <p className="text-center text-xl font-semibold">Featured campaigns</p>
             <div className="w-full grid gap-2 grid-cols-1 md:gap-3 md:grid-cols-3 lg:gap-4 lg:grid-cols-4">
                 {
-                    isSuccess && convertToCampaigns(allCampaigns).map((campaign, index) => {
+                    isSuccess && allCampaigns?.success?.map((campaign, index) => {
                         if (index > 7) return;
                         return <CampaignItem key={nanoid()} {...campaign} />
                     })

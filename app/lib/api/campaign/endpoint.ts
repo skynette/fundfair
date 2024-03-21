@@ -1,5 +1,6 @@
 import axiosInstance from "@/lib/axiosInstance";
 import { CampaignRequest } from "@/lib/network/campaign/CampaignRequest";
+import { Campaign, CampaignResponse } from "@/lib/network/campaign/CampaignResponse";
 import { convertUsdToOp } from "@/lib/utils";
 
 export const createCampaign = async (req: CampaignRequest): Promise<any> => {
@@ -24,5 +25,15 @@ export const createCampaign = async (req: CampaignRequest): Promise<any> => {
         }
     });
 
+    return response.data;
+}
+
+export const getAllCampaigns = async (): Promise<CampaignResponse> => {
+    const response = await axiosInstance.get('/campaigns/all/');
+    return response.data;
+}
+
+export const getCampaign = async (id: string): Promise<Campaign> => {
+    const response = await axiosInstance.get(`/campaign/${id}/`);
     return response.data;
 }
