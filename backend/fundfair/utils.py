@@ -59,12 +59,12 @@ def verify_code(email, code):
         return 'failed'
 
 
-def get_op_to_usd_rate():
-    """Fetches the current conversion rate from Optimism (OP) to USD."""
+def get_eth_to_usd():
+    """Fetches the current conversion rate from ethereum (OP) to USD."""
     try:
-        response = requests.get(f"https://api.coingecko.com/api/v3/simple/price?ids=optimism&vs_currencies=usd")
+        response = requests.get(f"https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd")
         response.raise_for_status()  # Raises stored HTTPError, if one occurred
-        rate = response.json().get('optimism', {}).get('usd', 0)
+        rate = response.json().get('ethereum', {}).get('usd', 0)
         return rate
     
     except requests.RequestException as error:
@@ -75,7 +75,7 @@ def get_op_to_usd_rate():
 def format_campaign_data(w3, campaign_data, funders_data):
     """Formats the raw campaign data from the smart contract into a more user-friendly format."""
     
-    op_to_usd_rate = Decimal(get_op_to_usd_rate())
+    eth_to_usd = Decimal(get_eth_to_usd())
 
     # Ensure funders_data has the expected structure
     if len(funders_data) >= 2 and isinstance(funders_data[1], list):
@@ -83,7 +83,7 @@ def format_campaign_data(w3, campaign_data, funders_data):
     else:
         donations_op = []
 
-    donations_usd = [donation_op * op_to_usd_rate for donation_op in donations_op]
+    donations_usd = [donation_op * eth_to_usd for donation_op in donations_op]
     deadline_readable = datetime.datetime.utcfromtimestamp(campaign_data[4]).strftime('%Y-%m-%d %H:%M:%S')
 
     formatted_data = {
@@ -91,10 +91,10 @@ def format_campaign_data(w3, campaign_data, funders_data):
         "title": campaign_data[1] if len(campaign_data) > 1 else None,
         "description": campaign_data[2] if len(campaign_data) > 2 else None,
         "target": Decimal(w3.fromWei(campaign_data[3], 'ether')),
-        "targetInUsd": Decimal(w3.fromWei(campaign_data[3], 'ether')) * op_to_usd_rate,
+        "targetInUsd": Decimal(w3.fromWei(campaign_data[3], 'ether')) * eth_to_usd,
         "deadline": deadline_readable,
         "amountRaised": Decimal(w3.fromWei(campaign_data[5], 'ether')),
-        "amountRaisedUSD": Decimal(w3.fromWei(campaign_data[5], 'ether')) * op_to_usd_rate,
+        "amountRaisedUSD": Decimal(w3.fromWei(campaign_data[5], 'ether')) * eth_to_usd,
         "image": campaign_data[6] if len(campaign_data) > 6 else None,
         "isFundingGoalReached": campaign_data[7] if len(campaign_data) > 7 else False,
         "isCampaignClosed": campaign_data[8] if len(campaign_data) > 8 else False,
@@ -114,7 +114,7 @@ def safe_extract_big_number(w3, value):
     return Decimal(w3.fromWei(value, 'ether'))
 
 
-def batch_format_campaign_data(w3, campaign_data, op_to_usd_rate):
+def batch_format_campaign_data(w3, campaign_data, eth_to_usd):
     """Formats the raw campaign data from an array of campaigns coming from a smart contract into a more user-friendly format.
 
     Args:
@@ -139,13 +139,13 @@ def batch_format_campaign_data(w3, campaign_data, op_to_usd_rate):
     amount_raised_eth = Decimal(amount_raised) / wei_to_ether
     donations_eth = [Decimal(donation) / wei_to_ether for donation in donations]
 
-    # Ensure op_to_usd_rate is a Decimal
-    op_to_usd_rate = Decimal(op_to_usd_rate)
+    # Ensure eth_to_usd is a Decimal
+    eth_to_usd = Decimal(eth_to_usd)
 
     # Now convert Ether values to USD
-    target_usd = float(target_eth * op_to_usd_rate)
-    amount_raised_usd = float(amount_raised_eth * op_to_usd_rate)
-    donations_usd = [float(donation_eth * op_to_usd_rate) for donation_eth in donations_eth]
+    target_usd = float(target_eth * eth_to_usd)
+    amount_raised_usd = float(amount_raised_eth * eth_to_usd)
+    donations_usd = [float(donation_eth * eth_to_usd) for donation_eth in donations_eth]
 
     # Format the data into a dictionary
     formatted_data = {

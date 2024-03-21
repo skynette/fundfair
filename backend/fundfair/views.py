@@ -11,7 +11,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from .utils import batch_format_campaign_data, ether_to_wei, format_campaign_data, get_op_to_usd_rate
+from .utils import batch_format_campaign_data, ether_to_wei, format_campaign_data, get_eth_to_usd
 from .models import Campaign
 from .serializers import CampaignSerializer, EmailVerificationSerializer, LoginSerializer, UserProfileSerializer, UserRegistrationSerializer, WalletLinkingSerializer
 
@@ -317,12 +317,12 @@ class GetAllCampaignsView(generics.GenericAPIView):
         
         try:
             all_campaigns_data = contract.functions.getCampaigns().call()
-            op_to_usd_rate = Decimal(get_op_to_usd_rate())
+            op_to_usd_rate = Decimal(get_eth_to_usd())
             formatted_campaigns = []
 
             # Process each campaign
             for index, campaign_data in enumerate(all_campaigns_data):
-                formatted_campaign = batch_format_campaign_data(w3, campaign_data, op_to_usd_rate)  # Pass the rate as an argument
+                formatted_campaign = batch_format_campaign_data(w3, campaign_data, op_to_usd_rate)
                 formatted_campaign['index'] = index
                 formatted_campaigns.append(formatted_campaign)
 
