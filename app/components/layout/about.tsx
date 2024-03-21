@@ -1,5 +1,7 @@
 import { ChartLineUp, FlowerTulip, ShieldCheck } from "@phosphor-icons/react";
 import { nanoid } from 'nanoid';
+import { AspectRatio } from "../ui/aspect-ratio";
+import Image from "next/image";
 
 interface AboutItemInterface {
     icon?: React.ReactNode; title: string; desc: string
@@ -66,8 +68,8 @@ const AboutItem2 = ({ title, desc }: AboutItemInterface) => {
 const About = () => {
     return (
         <div className="flex flex-col space-y-12">
-            <div className="container grid grid-cols-1 lg:grid-cols-[3fr_1fr]">
-                <div className="flex flex-col w-full lg:max-w-[70%]">
+            <div className="container grid grid-cols-1 lg:gap-x-20 lg:grid-cols-[2fr_1.5fr]">
+                <div className="flex flex-col w-full">
                     <h1 className="capitalize text-xl leading-relaxed font-bold lg:text-3xl">impactful <span className="border-b-4 border-b-yellow-500">giving platform</span> from fundraising hub</h1>
                     <p className="text-gray-600 text-sm mt-4 mb-6">
                         Connect your philanthropy with causes that matter. Our platform
@@ -82,6 +84,12 @@ const About = () => {
                         }
                     </div>
                 </div>
+
+                <Image src='/about.png'
+                    alt=""
+                    width={368}
+                    height={307}
+                    className="rounded-md object-cover" />
             </div>
 
             <div className="bg-purple-600 py-12">

@@ -6,7 +6,7 @@ import { Input } from "../ui/input";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { ethToUSD } from "@/lib/api/util/endpoint";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "../ui/label";
 import { useAddress, useContract, useContractWrite } from "@thirdweb-dev/react";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ const RightPane = () => {
     const [usdAmount, setUsdAmount] = useState<string>();
 
     const params = useParams();
-    
+
     const { data, isPending } = useQuery({
         queryKey: ['optimism-price'],
         queryFn: ethToUSD
@@ -33,21 +33,21 @@ const RightPane = () => {
 
     const { contract } = useContract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
 
-    const { mutateAsync: fundCampaign, isLoading } = useContractWrite(contract, "fundCampaign")
+    const { mutateAsync: fundCampaign, isSuccess, isError, isLoading } = useContractWrite(contract, "fundCampaign")
+
+    useEffect(() => {
+        if (isSuccess) toast.success(`$${usdAmount} has been donated to this campaign.`)
+        if (isError) toast.error('Unable to fund this campaign. Please try again.')
+    }, [isSuccess, isError]);
 
     const donateToCampaign = async () => {
         const formattedAmount = parseFloat(ethAmount as string) * 10 ** 18;
-        try {
-            const data = await fundCampaign({
-                args: [params.id],
-                overrides: {
-                    value: formattedAmount.toString()
-                }
-            });
-            console.info("contract call successs", data);
-        } catch (err) {
-            console.error("contract call failure", err);
-        }
+        await fundCampaign({
+            args: [params.id],
+            overrides: {
+                value: formattedAmount.toString()
+            }
+        });
     }
 
     return (
@@ -74,6 +74,7 @@ const RightPane = () => {
             <Button disabled={isPending || isLoading} className='mt-6 inline-flex justify-between text-white bg-purple-500 text-sm font-semibold'
                 onClick={() => {
                     !address && toast.error('No wallet has been connected');
+                    if (!!ethAmount) return;
                     address && donateToCampaign();
                 }}>
                 Donate now
