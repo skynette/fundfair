@@ -13,6 +13,7 @@ import Image from "next/image";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { Progress } from "../ui/progress";
 import { formatNumber } from "@/lib/utils";
+import Empty from "../ui/empty";
 
 const CampaignInfo = ({ icon, title, value }: { icon?: React.ReactNode, title?: string, value?: string }) => {
     return (
@@ -34,23 +35,25 @@ const CampaignDesc = ({ text }: { text?: string }) => {
     );
 }
 
-const FundItem = () => {
+const FundItem = ({ donation, donator }: { donation: string, donator: string }) => {
     return (
         <div className="flex justify-between p-3 rounded-lg border border-gray-300/50">
             <div className="flex flex-col">
-                <p className="font-semibold text-sm">Town Hall</p>
+                <p className="font-semibold text-sm">{`${donator.substring(0, 6)}...${donator.substring(donator.length - 4)}`}</p>
                 <p className="text-xs text-gray-500">Mar 23, 2023</p>
             </div>
-            <p className="font-semibold text-sm">$20</p>
+            <p className="font-semibold text-sm">{`$${donation}`}</p>
         </div>
     );
 }
 
-const FundingList = () => {
+const FundingList = ({ donations, donators }: { donations: number[], donators: string[] }) => {
+    if (donations.length === 0 || donators.length === 0) return <Empty />;
+
     return (
         <div className="flex flex-col space-y-3 lg:w-[70%]">
             {
-                Array.from({ length: 4 }).map(_ => <FundItem key={nanoid()} />)
+                donations.map((_, index) => <FundItem key={nanoid()} donation={donations[index].toString()} donator={donators[index]} />)
             }
         </div>
     )
@@ -82,7 +85,7 @@ const LeftPane = () => {
                 <Image src={campaign?.image ?? ''}
                     alt=""
                     fill
-                    className="rounded-md object-cover" />
+                    className="rounded-md object-cover mt-2" />
             </AspectRatio>
 
             <p className="capitalize mt-2 font-semibold text-xl lg:mt-4 lg:text-3xl">
@@ -122,7 +125,7 @@ const LeftPane = () => {
 
             <div className="mt-2">
                 {
-                    tab === 0 ? <CampaignDesc text={campaign?.description} /> : <FundingList />
+                    tab === 0 ? <CampaignDesc text={campaign?.description} /> : <FundingList donations={campaign?.donationsUSD ?? []} donators={campaign?.donators ?? []} />
                 }
             </div>
 

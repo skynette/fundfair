@@ -8,6 +8,7 @@ export interface Campaign {
     description: string
     target: number
     targetInUsd: number
+    deadline: string
     amountRaised: number
     amountRaisedUSD: number
     image: string
