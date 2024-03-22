@@ -14,6 +14,7 @@ import { AspectRatio } from "../ui/aspect-ratio";
 import { Progress } from "../ui/progress";
 import { formatNumber } from "@/lib/utils";
 import Empty from "../ui/empty";
+import { format } from "date-fns";
 
 const CampaignInfo = ({ icon, title, value }: { icon?: React.ReactNode, title?: string, value?: string }) => {
     return (
@@ -42,7 +43,7 @@ const FundItem = ({ donation, donator }: { donation: string, donator: string }) 
                 <p className="font-semibold text-sm">{`${donator.substring(0, 6)}...${donator.substring(donator.length - 4)}`}</p>
                 <p className="text-xs text-gray-500">Mar 23, 2023</p>
             </div>
-            <p className="font-semibold text-sm">{`$${donation}`}</p>
+            <p className="font-semibold text-sm">{`$${Number(donation).toFixed(2)}`}</p>
         </div>
     );
 }
@@ -98,7 +99,7 @@ const LeftPane = () => {
                 <CampaignInfo icon={<Target size={24} />} title='Target($)' value={formatNumber(campaign?.targetInUsd.toFixed(2))} />
                 <CampaignInfo icon={<HourglassMedium size={24} />} title='Left($)' value={formatNumber(((campaign?.targetInUsd ?? 0) - (campaign?.amountRaisedUSD ?? 0)).toFixed(2))} />
                 <CampaignInfo icon={<PiggyBank size={24} />} title='Raised($)' value={formatNumber(campaign?.amountRaisedUSD.toFixed(2))} />
-                <CampaignInfo icon={<CalendarX size={24} />} title='Target deadline' value={'24th March 2023'} />
+                <CampaignInfo icon={<CalendarX size={24} />} title='Target deadline' value={format(new Date(campaign?.deadline ?? ''), 'dd MMMM yyyy')} />
                 <CampaignInfo icon={<UsersThree size={24} />} title='Donors' value={campaign?.donators.length.toString()} />
             </div>
 
