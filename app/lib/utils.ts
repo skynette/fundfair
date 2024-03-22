@@ -195,3 +195,10 @@ export async function uploadImage(file: any) {
     
     return response.data.imageUrl; 
 }
+
+export function formatNumber(number: any) {
+    return Number(number).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}

@@ -9,7 +9,7 @@ import { Button } from "../ui/button";
 
 import { useContract, useContractRead } from "@thirdweb-dev/react";
 import { BigNumber, FundingModel, CauseCategory } from "../../lib/types";
-import { causeCategoryOption, convertToCampaigns } from "@/lib/utils";
+import { causeCategoryOption, convertToCampaigns, formatNumber } from "@/lib/utils";
 import Link from "next/link";
 import SpinLoader from "../ui/loader";
 import Empty from "../ui/empty";
@@ -38,12 +38,12 @@ export const CampaignItem = (campaign: Campaign) => {
 
                 <div className="grid grid-cols-3 my-2">
                     <div className="flex flex-col">
-                        <p className="text-sm font-medium">{campaign.target.toFixed(2)}</p>
+                        <p className="text-sm font-medium">{formatNumber(campaign.target.toFixed(2))}</p>
                         <p className="text-gray-500 text-sm">Target (USD)</p>
                     </div>
 
                     <div className="flex flex-col">
-                        <p className="text-sm font-medium">{campaign.amountRaised.toFixed(2)}</p>
+                        <p className="text-sm font-medium">{formatNumber(campaign.amountRaisedUSD.toFixed(2))}</p>
                         <p className="text-gray-500 text-sm">Raised (USD)</p>
                     </div>
 

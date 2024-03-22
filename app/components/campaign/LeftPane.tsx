@@ -12,6 +12,7 @@ import SpinLoader from "../ui/loader";
 import Image from "next/image";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { Progress } from "../ui/progress";
+import { formatNumber } from "@/lib/utils";
 
 const CampaignInfo = ({ icon, title, value }: { icon?: React.ReactNode, title?: string, value?: string }) => {
     return (
@@ -91,9 +92,9 @@ const LeftPane = () => {
             <Progress value={((campaign?.amountRaisedUSD ?? 1) / (campaign?.targetInUsd ?? 1)) * 100} max={100} />
 
             <div className="p-2 my-2 rounded-lg bg-gray-50 gap-y-3 grid grid-cols-3 lg:grid-cols-5 lg:gap-y-0 lg:my-4">
-                <CampaignInfo icon={<Target size={24} />} title='Target($)' value={campaign?.targetInUsd.toFixed(2)} />
-                <CampaignInfo icon={<HourglassMedium size={24} />} title='Left($)' value={((campaign?.targetInUsd ?? 0) - (campaign?.amountRaisedUSD ?? 0)).toFixed(2)} />
-                <CampaignInfo icon={<PiggyBank size={24} />} title='Raised($)' value={campaign?.amountRaisedUSD.toFixed(2)} />
+                <CampaignInfo icon={<Target size={24} />} title='Target($)' value={formatNumber(campaign?.targetInUsd.toFixed(2))} />
+                <CampaignInfo icon={<HourglassMedium size={24} />} title='Left($)' value={formatNumber(((campaign?.targetInUsd ?? 0) - (campaign?.amountRaisedUSD ?? 0)).toFixed(2))} />
+                <CampaignInfo icon={<PiggyBank size={24} />} title='Raised($)' value={formatNumber(campaign?.amountRaisedUSD.toFixed(2))} />
                 <CampaignInfo icon={<CalendarX size={24} />} title='Target deadline' value={'24th March 2023'} />
                 <CampaignInfo icon={<UsersThree size={24} />} title='Donors' value={campaign?.donators.length.toString()} />
             </div>
